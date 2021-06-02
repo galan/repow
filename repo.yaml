@@ -1,0 +1,6 @@
+name: repow
+description: Simplifies management of your local git repository zoo.
+type: tooling
+languages: [go]
+contacts:
+  - galan

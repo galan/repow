@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="repow-02.svg"
+   enable-background="new"
+   inkscape:export-xdpi="135.97696"
+   inkscape:export-ydpi="135.97696">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient6138"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop6136" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6138"
+       id="radialGradient6160"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.26535981,0,63.118275)"
+       cx="85.057492"
+       cy="85.917264"
+       fx="85.057492"
+       fy="85.917264"
+       r="31.95427" />
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter981">
+      <feBlend
+         inkscape:collect="always"
+         mode="saturation"
+         in2="BackgroundImage"
+         id="feBlend983" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2"
+     inkscape:cx="381.99367"
+     inkscape:cy="621.98631"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer3"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1151"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-center="true"
+     inkscape:snap-others="false"
+     showguides="false" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Star"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="">
+    <circle
+       style="fill:#2450c8;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1"
+       id="path6185"
+       cx="72.029137"
+       cy="108.32109"
+       r="39.849888"
+       inkscape:export-xdpi="163.17236"
+       inkscape:export-ydpi="163.17236" />
+    <path
+       sodipodi:type="star"
+       style="fill:#ffcc00;stroke-width:0.17744829"
+       id="path3834"
+       sodipodi:sides="10"
+       sodipodi:cx="83.878052"
+       sodipodi:cy="107.16102"
+       sodipodi:r1="32.359066"
+       sodipodi:r2="21.014656"
+       sodipodi:arg1="0.76877919"
+       sodipodi:arg2="1.0829385"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 107.13645,129.65893 -13.4081,-3.93485 -4.257795,13.30907 -8.53454,-11.06444 -11.267505,8.2646 -0.401073,-13.9678 -13.973409,0.0633 7.88559,-11.53593 -11.341948,-8.16214 13.160227,-4.697727 -4.378247,-13.269933 13.408103,3.934843 4.257795,-13.309071 8.534541,11.064441 11.267504,-8.264595 0.401073,13.967797 13.973414,-0.06332 -7.88559,11.53593 11.34194,8.16213 -13.16022,4.69773 z"
+       transform="rotate(9.8995473,71.126289,37.167337)"
+       inkscape:export-xdpi="163.17236"
+       inkscape:export-ydpi="163.17236" />
+    <path
+       sodipodi:type="star"
+       style="fill:#aa0000;stroke-width:0.17744829"
+       id="path3834-6"
+       sodipodi:sides="10"
+       sodipodi:cx="83.878052"
+       sodipodi:cy="107.16102"
+       sodipodi:r1="32.359066"
+       sodipodi:r2="21.014656"
+       sodipodi:arg1="0.76877919"
+       sodipodi:arg2="1.0829385"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 107.13645,129.65893 -13.4081,-3.93485 -4.257795,13.30907 -8.53454,-11.06444 -11.267505,8.2646 -0.401073,-13.9678 -13.973409,0.0633 7.88559,-11.53593 -11.341948,-8.16214 13.160227,-4.697727 -4.378247,-13.269933 13.408103,3.934843 4.257795,-13.309071 8.534541,11.064441 11.267504,-8.264595 0.401073,13.967797 13.973414,-0.06332 -7.88559,11.53593 11.34194,8.16213 -13.16022,4.69773 z"
+       transform="matrix(0.6922659,0.12081411,-0.12081411,0.6922659,26.994198,23.996804)"
+       inkscape:export-xdpi="163.17236"
+       inkscape:export-ydpi="163.17236" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Fade"
+     style="display:inline;filter:url(#filter981)">
+    <ellipse
+       id="circle1000"
+       style="fill:#2450c8;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1"
+       cy="108.32109"
+       cx="72.029137"
+       r="39.849888" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="font orig">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.91032982px;line-height:1.25;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.46029305;stroke-linejoin:bevel;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+       x="5.6207218"
+       y="127.91057"
+       id="text6150"
+       transform="rotate(-14.408916)"
+       inkscape:export-xdpi="163.17236"
+       inkscape:export-ydpi="163.17236"><tspan
+         sodipodi:role="line"
+         id="tspan6148"
+         x="5.6207218"
+         y="127.91057"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.75555611px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;stroke:#000000;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+         rotate="0 0 0 0 0 0 0"
+         dx="0 0 0 0 0"
+         dy="0 0 1.8"><tspan
+           style="font-size:13.40555573px"
+           id="tspan830"
+           dy="-3.6800001 -1.88"><tspan
+   style="font-size:18.34444427px"
+   id="tspan841"
+   dy="1.88">R</tspan>E</tspan><tspan
+           style="font-size:18.34444427px"
+           id="tspan840"
+           dy="1.8800035">P<tspan
+   style="font-size:25.39999962px;letter-spacing:-5.35516644px"
+   id="tspan855"
+   dy="2.74"
+   dx="-2.4699996">O</tspan></tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:18.34444427px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-7.79196358px;writing-mode:lr-tb;text-anchor:start;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none"
+           id="tspan6183"
+           rotate="0 0 0"
+           dy="-2.74"
+           dx="2.4699996">VV</tspan></tspan></text>
+  </g>
+  <g
+     inkscape:label="font copy"
+     id="g1129"
+     inkscape:groupmode="layer"
+     style="display:none">
+    <text
+       transform="rotate(-14.095752)"
+       id="text1127"
+       y="128.75726"
+       x="9.0730991"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.91032982px;line-height:1.25;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.46029305;stroke-linejoin:bevel;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+       xml:space="preserve"><tspan
+         dx="0 0 0 0 0"
+         rotate="0 0 0 0 0 0 0"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.93333244px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;stroke:#000000;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+         y="128.75726"
+         x="9.0730991"
+         id="tspan1125"
+         sodipodi:role="line">REPO<tspan
+   rotate="0 0 0"
+   id="tspan1123"
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.93333244px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-7.79196358px;writing-mode:lr-tb;text-anchor:start;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none">VV</tspan></tspan></text>
+  </g>
+</svg>
