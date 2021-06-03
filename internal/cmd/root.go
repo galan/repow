@@ -9,7 +9,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "repow",
 	Short: "repository managment",
-	Long:  "repow ✪ convenient and fast repository management with self-containing meta-data.\n\nhttp://github.com/galan/repow",
+	Long:  "repow ✪ convenient and fast repository management with self-containing meta-data.\n\nhttps://github.com/galan/repow",
 }
 
 var VersionPassed string

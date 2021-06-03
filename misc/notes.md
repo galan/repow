@@ -1,6 +1,6 @@
 # Releasing
 ```
-git tag -a v0.0.12 -m "Commit and release message"
+git tag -a v0.0.1 -m "release 0.0.1"
 git push --tags
 ```
 

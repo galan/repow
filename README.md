@@ -11,7 +11,7 @@ Commands that target everyday operations:
 * **cleanup** - non-destructive cleanup of remotely deleted or archived repositories.
 * **update** - checks, fetches and pulls all of your local repositories in parallel and prints condensed commit messages.
 
-Beside, repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository in the provider (eg. gitlab) with topics, description, configuration, etc..
+Beside, repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with topics, description, configuration, etc..
 
 Commands utilizing the manifest-file:
 * **validate** - Validating the manifest-file (existince, patterns, usernames, etc.)
@@ -26,7 +26,7 @@ DIAGRAM
 Example workflow:
 1. The developer clones all the desired repositories, based on tags, path-patterns (includes/exludes), or starred ones using `repow clone`.
 2. From time-to-time the developer cleans the directory, containing the git-repositories via `repow cleanup`. Projects that have been deleted at the hoster are moved into a subdirectory `_deleted`, archived ones into `_archived`.
-3. Also in regular intervals the local repositories are fetched or pulled with `repow update fetch` respective `repow update pull`. An overview of the local repositories can be obtained with `repow update check`.
+3. Also in regular intervals the local repositories are fetched or pulled with `repow update fetch` respective `repow update pull`. An overview of the local repositories modifications can be obtained with `repow update check`.
 
 If the manifest-file is used, the configuration can be applied using one of the following methods:
 * For local execution using the `repow apply` command.
@@ -36,6 +36,7 @@ Before applying, the `repo.yaml` file is validated. Then the following settings 
 * The project description is updated
 * Topics (aka tags) are added
 * Organization Units, languages and type are also added as topic
+* Hoster-specific configurations are updated
 
 With the help of these additional topics, cloning specific selections becomes much easier and more efficient.
 
