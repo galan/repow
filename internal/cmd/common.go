@@ -71,16 +71,14 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 // collect all directories that contain .git
 func collectGitDirs(dir string, provider hoster.Hoster) (result []model.RepoDir, err error) {
 	dirAbs, _ := filepath.Abs(dir)
-	if util.ExistsDir(path.Join(dirAbs, ".git")) {
-		// check if given path is git-repository
+	if util.ExistsDir(path.Join(dirAbs, ".git")) { // check if given path is git-repository
 		repo, err := model.MakeRepoDir(dirAbs, provider.Host())
 		if err != nil {
 			say.Verbose("Failed determine repository directory: %s", err)
 			return result, err
 		}
 		result = append(result, *repo)
-	} else {
-		// else search for all sub-dir git-repositories
+	} else { // else search for all sub-dir git-repositories
 		dirs, err := ioutil.ReadDir(dirAbs)
 		if err != nil {
 			return result, err

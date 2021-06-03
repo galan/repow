@@ -15,7 +15,7 @@ func ExistsFile(filename string) bool {
 // checks if the directory exists and is not a file
 func ExistsDir(dirPath string) bool {
 	info, err := os.Stat(dirPath)
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) || err != nil { // err.data=ENOTDIR on file
 		return false
 	}
 	return info.IsDir()
