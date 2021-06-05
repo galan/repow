@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"repo/internal/hoster"
+	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
@@ -32,11 +32,11 @@ func init() {
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup [root-dir]",
 	Short: "Pushes archived and deleted repositories from the checkout-directory aside",
-	Long:  `Archived or deleted repositories at the provider are moved aside from the checkout-directory. They are collected non-destructive into separate directories.`,
+	Long:  `Archived or deleted repositories at the hoster are moved aside from the checkout-directory. They are collected non-destructive into separate directories.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
 		dirReposRoot := args[0]
-		provider, err := gitlab.MakeProvider()
+		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
 		dirs, err := ioutil.ReadDir(dirReposRoot)
@@ -44,11 +44,11 @@ var cleanupCmd = &cobra.Command{
 			handleFatalError(errors.New("Unable to read repository root directory (" + err.Error() + ")"))
 		}
 
-		checkRepositories(dirReposRoot, dirs, provider)
+		checkRepositories(dirReposRoot, dirs, hoster)
 	},
 }
 
-func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.Hoster) {
+func checkRepositories(dirReposRoot string, dirs []os.FileInfo, hoster h.Hoster) {
 	counter := int32(0)
 	counterOk := int32(0)
 	counterSkipped := int32(0)
@@ -57,7 +57,7 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.
 
 	defer func(start time.Time) {
 		say.Plain("%s Finished, took %s (%d Ok, %d Skipped, %d Archived, %d Removed)",
-			color.Magenta("☮").Bold(), time.Since(start), color.Green(counterOk).Bold(), color.Yellow(counterSkipped).Bold(), color.Blue(counterArchived).Bold(), color.Cyan(counterRemoved).Bold())
+			say.Repow(), time.Since(start), color.Green(counterOk).Bold(), color.Yellow(counterSkipped).Bold(), color.Blue(counterArchived).Bold(), color.Cyan(counterRemoved).Bold())
 	}(time.Now())
 
 	dirsFiltered := []os.FileInfo{}
@@ -71,7 +71,7 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.
 	var wg sync.WaitGroup
 	for i := 0; i < getParallelism(cleanupParallelism); i++ {
 		wg.Add(1)
-		go processDir(dirReposRoot, provider, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
+		go processDir(dirReposRoot, hoster, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
 	}
 
 	for _, dirRepository := range dirsFiltered {
@@ -81,7 +81,7 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.
 	wg.Wait()
 }
 
-func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, tasks chan os.FileInfo, wg *sync.WaitGroup) {
+func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, tasks chan os.FileInfo, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for dirRepository := range tasks {
 		dirRepositoryName := dirRepository.Name()
@@ -103,7 +103,7 @@ func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, tot
 			return
 		}
 
-		remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, provider.Host())
+		remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, hoster.Host())
 
 		if remotePath == "" {
 			say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Unable to determine git remote name (skipping)")
@@ -112,7 +112,7 @@ func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, tot
 		}
 
 		say.Verbose("RemotePath: %s: %s", dirRepositoryName, remotePath)
-		state, err := provider.ProjectState(remotePath)
+		state, err := hoster.ProjectState(remotePath)
 		if err != nil {
 			say.ProgressWarn(counter, total, err, dirRepositoryName, "- Unable to determine git remote state (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
@@ -123,15 +123,15 @@ func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, tot
 		var errorMove error = nil
 		var code string = ""
 		switch state {
-		case hoster.Ok:
+		case h.Ok:
 			say.Verbose("Repository %s ok", dirRepositoryName)
 			code = color.Green("✔").Bold().String()
 			atomic.AddInt32(counterOk, 1)
-		case hoster.Archived:
+		case h.Archived:
 			errorMove = move(dirReposRoot, dirRepositoryName, dirArchived)
 			code = color.Blue("A").Bold().String() // 📦
 			atomic.AddInt32(counterArchived, 1)
-		case hoster.Removed:
+		case h.Removed:
 			errorMove = move(dirReposRoot, dirRepositoryName, dirRemoved)
 			code = color.Cyan("R").Bold().String() // 🗑
 			atomic.AddInt32(counterRemoved, 1)
@@ -145,7 +145,7 @@ func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, tot
 		if errorMove != nil {
 			say.ProgressError(counter, total, errorMove, dirRepositoryName, "- Unable to move")
 		} else {
-			if !cleanupQuiet || state != hoster.Ok {
+			if !cleanupQuiet || state != h.Ok {
 				say.ProgressGeneric(counter, total, code, dirRepositoryName, "")
 			}
 		}

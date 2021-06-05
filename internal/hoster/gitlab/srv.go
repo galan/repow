@@ -32,7 +32,7 @@ func HandleWebhookGitlab(w http.ResponseWriter, r *http.Request) (hoster.Hoster,
 		return nil, nil, errors.New("security-token does not match")
 	}
 
-	provider, err := MakeProvider()
+	hoster, err := MakeHoster()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -46,7 +46,7 @@ func HandleWebhookGitlab(w http.ResponseWriter, r *http.Request) (hoster.Hoster,
 	push := WebHookPush{}
 	yaml.Unmarshal(body, &push)
 
-	return provider, &push, nil
+	return hoster, &push, nil
 
 }
 

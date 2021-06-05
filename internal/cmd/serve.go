@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"repo/internal/hoster"
+	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
@@ -15,7 +15,7 @@ import (
 )
 
 const envServerPort string = "REPOW_SERVER_PORT"
-const defaultServerPort = "8081"
+const defaultServerPort = "8080"
 
 var serverPort string = defaultServerPort
 
@@ -41,13 +41,13 @@ func startServer() {
 	})
 
 	http.HandleFunc("/webhook/gitlab", func(w http.ResponseWriter, r *http.Request) {
-		provider, webhook, err := gitlab.HandleWebhookGitlab(w, r)
+		hoster, webhook, err := gitlab.HandleWebhookGitlab(w, r)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		if provider == nil || webhook == nil {
-			say.Verbose("provider or webhook empty")
+		if hoster == nil || webhook == nil {
+			say.Verbose("hoster or webhook empty")
 			return
 		}
 		// check default branch
@@ -56,7 +56,7 @@ func startServer() {
 			return
 		}
 
-		processWebhook(w, r, provider, webhook.Project.Name, webhook.Project.PathWithNamespace, webhook.Ref)
+		go processWebhook(w, r, hoster, webhook.Project.Name, webhook.Project.PathWithNamespace, webhook.Ref)
 	})
 
 	beforeServer()
@@ -65,7 +65,7 @@ func startServer() {
 }
 
 func initServer() {
-	say.InfoLn("Starting server...")
+	say.InfoLn("Starting repow %s server...", say.Repow())
 	port := os.Getenv(envServerPort)
 	if port != "" {
 		serverPort = port
@@ -80,9 +80,10 @@ type WebHookRequest struct {
 	RepoYaml model.RepoYaml
 }
 
-func processWebhook(w http.ResponseWriter, r *http.Request, provider hoster.Hoster, name string, remotePath string, ref string) {
+func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, name string, remotePath string, ref string) {
+	say.InfoLn("Processing webhook for %s", remotePath)
 	// fetch repo.yaml
-	repoYaml, validYaml, err := provider.DownloadRepoyaml(remotePath, ref)
+	repoYaml, validYaml, err := hoster.DownloadRepoyaml(remotePath, ref)
 	if err != nil {
 		say.Error("%s", err)
 		msg := fmt.Sprintf("error: %v", err)
@@ -93,7 +94,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, provider hoster.Host
 	repoRemote := model.MakeRepoRemote(remotePath, repoYaml, validYaml)
 
 	// validate
-	errs := provider.Validate(repoRemote.RepoMeta)
+	errs := hoster.Validate(repoRemote.RepoMeta)
 	if errs != nil {
 		say.Error("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)
 		msg := fmt.Sprintf("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)
@@ -101,7 +102,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, provider hoster.Host
 		return
 	}
 
-	say.InfoLn("Repoyaml: %s", repoYaml)
+	say.Verbose("Repoyaml: %s", repoYaml)
 
-	provider.Apply(repoRemote.RepoMeta)
+	hoster.Apply(repoRemote.RepoMeta)
 }

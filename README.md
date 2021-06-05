@@ -15,7 +15,7 @@ Beside, repow encourages the concept of self-contained repositories by defining 
 
 Commands utilizing the manifest-file:
 * **validate** - Validating the manifest-file (existince, patterns, usernames, etc.)
-* **apply** - Applying the manifest files values to the provider repository
+* **apply** - Applying the manifest files values to the hoster repository
 * **serve** - Starts the webhook server, that will listen to the changes on the default branch to apply changes automatically on push events.
 
 

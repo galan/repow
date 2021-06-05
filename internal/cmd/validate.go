@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
+	"repo/internal/model"
 	"repo/internal/say"
 
 	"github.com/spf13/cobra"
@@ -17,20 +19,25 @@ var validateCmd = &cobra.Command{
 	Long:  `Validates the repo.yaml manifest file for the given repository or repositories below the given directory.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, true, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		provider, err := gitlab.MakeProvider()
+		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		gitDirs := collectGitDirsHandled(args[0], provider)
-		counter := int32(0)
-
-		for _, gd := range gitDirs {
-			say.Verbose("Validating %s", gd.Name)
-			errValidate := provider.Validate(gd.RepoMeta)
-			if errValidate != nil {
-				say.ProgressErrorArray(&counter, len(gitDirs), errValidate, gd.Name, "")
-			} else {
-				say.ProgressSuccess(&counter, len(gitDirs), gd.Name, "")
-			}
-		}
+		gitDirs := collectGitDirsHandled(args[0], hoster)
+		validateProcess(hoster, gitDirs)
 	},
+}
+
+func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir) {
+	defer say.Timer()
+	counter := int32(0)
+
+	for _, gd := range gitDirs {
+		say.Verbose("Validating %s", gd.Name)
+		errValidate := hoster.Validate(gd.RepoMeta)
+		if errValidate != nil {
+			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, gd.Name, "")
+		} else {
+			say.ProgressSuccess(&counter, len(gitDirs), gd.Name, "")
+		}
+	}
 }

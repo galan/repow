@@ -18,7 +18,7 @@ import (
 const REPOW_GITLAB_API_TOKEN = "REPOW_GITLAB_API_TOKEN"
 const GITLAB_API_TOKEN = "GITLAB_API_TOKEN"
 
-func MakeProvider() (*Gitlab, error) {
+func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
 	value := util.GetEnv(REPOW_GITLAB_API_TOKEN, util.GetEnv(GITLAB_API_TOKEN, ""))
 	if value == "" {
@@ -41,7 +41,7 @@ func (g Gitlab) Host() string {
 	return "gitlab.com"
 }
 
-func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.ProviderRepository {
+func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepository {
 	say.Info("Retrieving gitlab projects")
 	projectOptions := &gg.ListProjectsOptions{
 		ListOptions: gg.ListOptions{
@@ -55,7 +55,7 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.ProviderRep
 	}
 
 	var total int
-	var repos []hoster.ProviderRepository
+	var repos []hoster.HosterRepository
 	var lastResponse *gg.Response
 	for ok := true; ok; ok = lastResponse.NextPage != 0 { // Loop through all pages and get list of projects
 		say.Info(".")
@@ -70,7 +70,7 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.ProviderRep
 			total++
 
 			if matches(options, project.PathWithNamespace, project.TagList) {
-				repos = append(repos, hoster.ProviderRepository{
+				repos = append(repos, hoster.HosterRepository{
 					Id:     project.ID,
 					Name:   project.Name,
 					Topics: project.TagList,

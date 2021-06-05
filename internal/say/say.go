@@ -3,6 +3,7 @@ package say
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"strconv"
 	"sync/atomic"
@@ -11,6 +12,11 @@ import (
 )
 
 var VerboseEnabled bool
+
+func Repow() string {
+	//aurora.Red("ॐ").String()
+	return Yellow("✪").Bold().String()
+}
 
 func Plain(message string, a ...interface{}) {
 	fmt.Printf("%s\n", fmt.Sprintf(message, a...))
@@ -86,4 +92,10 @@ func ProgressErrorArray(counter *int32, total int, errs []error, name string, me
 		msg = msg + fmt.Sprintf("\n%*s        - %s", totalLen, "", e.Error())
 	}
 	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, msg, a...)
+}
+
+func Timer() {
+	func(start time.Time) {
+		InfoLn("%s Finished, took %s", Repow(), time.Since(start))
+	}(time.Now())
 }

@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"repo/internal/hoster"
+	h "repo/internal/hoster"
 	"repo/internal/model"
 	"repo/internal/say"
 	"repo/internal/util"
@@ -70,10 +70,10 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 // if yes add to array
 // if no go thru every directory within dir
 // collect all directories that contain .git
-func collectGitDirs(dir string, provider hoster.Hoster) (result []model.RepoDir, err error) {
+func collectGitDirs(dir string, hoster h.Hoster) (result []model.RepoDir, err error) {
 	dirAbs, _ := filepath.Abs(dir)
 	if util.ExistsDir(path.Join(dirAbs, ".git")) { // check if given path is git-repository
-		repo, err := model.MakeRepoDir(dirAbs, provider.Host())
+		repo, err := model.MakeRepoDir(dirAbs, hoster.Host())
 		if err != nil {
 			say.Verbose("Failed determine repository directory: %s", err)
 			return result, err
@@ -86,7 +86,7 @@ func collectGitDirs(dir string, provider hoster.Hoster) (result []model.RepoDir,
 		}
 		for _, d := range dirs {
 			if util.ExistsDir(path.Join(dirAbs, d.Name(), ".git")) {
-				repo, err := model.MakeRepoDir(path.Join(dir, d.Name()), provider.Host())
+				repo, err := model.MakeRepoDir(path.Join(dir, d.Name()), hoster.Host())
 				if err != nil {
 					say.Verbose("Not adding dir %s: %s", d.Name(), err)
 					return result, err
@@ -99,8 +99,8 @@ func collectGitDirs(dir string, provider hoster.Hoster) (result []model.RepoDir,
 }
 
 // convenience function, would exit automatically on error or empty result
-func collectGitDirsHandled(dir string, provider hoster.Hoster) []model.RepoDir {
-	gitDirs, err := collectGitDirs(dir, provider)
+func collectGitDirsHandled(dir string, hoster h.Hoster) []model.RepoDir {
+	gitDirs, err := collectGitDirs(dir, hoster)
 	handleFatalError(err)
 
 	if len(gitDirs) == 0 {

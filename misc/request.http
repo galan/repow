@@ -1,5 +1,5 @@
 ### Push Event
-POST http://localhost:8081/webhook/gitlab
+POST http://localhost:8080/webhook/gitlab
 Content-Type: application/json
 X-Gitlab-Event: Push Hook
 

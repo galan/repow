@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
@@ -37,21 +36,21 @@ Mode can be one of:
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer func(start time.Time) { say.InfoLn("🦊 Finished, took %s", time.Since(start)) }(time.Now())
+		defer say.Timer()
 		modes := []string{"check", "fetch", "pull"}
 
 		mode := args[0]
-		provider, err := gitlab.MakeProvider()
+		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
 		if !util.IsInSlice(mode, modes...) {
 			handleFatalError(errors.New(fmt.Sprintf("mode has to be one of: %s", modes)))
 		}
 
-		gitDirs := collectGitDirsHandled(args[1], provider)
+		gitDirs := collectGitDirsHandled(args[1], hoster)
 
 		if mode == "fetch" || mode == "pull" {
-			gitclient.PrepareSsh(provider.Host())
+			gitclient.PrepareSsh(hoster.Host())
 		}
 
 		tasks := make(chan *StateContext)

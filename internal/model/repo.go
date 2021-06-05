@@ -39,9 +39,9 @@ func (rd RepoDir) PathDirName() string {
 	return fiRepo.Name()
 }
 
-func MakeRepoDir(pathRepository string, providerHost string) (*RepoDir, error) {
+func MakeRepoDir(pathRepository string, hosterHost string) (*RepoDir, error) {
 	result := &RepoDir{Path: pathRepository}
-	result.RemotePath = DetermineRemotePath(pathRepository, providerHost)
+	result.RemotePath = DetermineRemotePath(pathRepository, hosterHost)
 	result.Name = result.PathDirName()
 
 	if util.ExistsFile(result.RepoYamlFilename()) {
@@ -69,7 +69,7 @@ func determineName(remotePath string) string {
 	return split[len(split)-1]
 }
 
-func DetermineRemotePath(pathRepository string, providerHost string) string {
+func DetermineRemotePath(pathRepository string, hosterHost string) string {
 	bufferOut := new(bytes.Buffer)
 	bufferErr := new(bytes.Buffer)
 	cmdGo := exec.Command("git", "remote", "-v")
@@ -91,7 +91,7 @@ func DetermineRemotePath(pathRepository string, providerHost string) string {
 		//origin	https://github.com/galan/maven-parent.git (fetch)
 		//origin	git@gitlab.com:group/infrastructure/project.git (fetch)
 		//TODO distinguish remote url notations, improve this approach
-		re, _ := regexp.Compile(`^origin[\t ]+((https|ssh):\/\/.*@?|git@)` + providerHost + `[\/:]([a-zA-Z0-9_\/-]+)([.]git)?[\t ]+.fetch.$`)
+		re, _ := regexp.Compile(`^origin[\t ]+((https|ssh):\/\/.*@?|git@)` + hosterHost + `[\/:]([a-zA-Z0-9_\/-]+)([.]git)?[\t ]+.fetch.$`)
 		matches := re.MatchString(line)
 		say.Verbose("Checking remote: %s, matches: %v", line, matches)
 		if matches {

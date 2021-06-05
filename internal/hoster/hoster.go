@@ -13,7 +13,7 @@ type RequestOptions struct {
 }
 
 type Hoster interface {
-	Repositories(options RequestOptions) []ProviderRepository
+	Repositories(options RequestOptions) []HosterRepository
 	ProjectState(projectPath string) (CleanupState, error)
 	Host() string
 	Validate(repo model.RepoMeta) []error
@@ -21,7 +21,7 @@ type Hoster interface {
 	Apply(repo model.RepoMeta) error
 }
 
-type ProviderRepository struct {
+type HosterRepository struct {
 	Id     int
 	Name   string
 	Topics []string

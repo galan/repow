@@ -8,8 +8,8 @@ git push --tags
 Old git code
 ```
 		// root url: https://gitlab.com/...
-		// * github.com > github provider
-		// * gitlab com > gitlab provider. How about self-hosted?
+		// * github.com > github host
+		// * gitlab com > gitlab host. How about self-hosted?
 		// api key
 
 		//ccc, err := giturls.Parse("")

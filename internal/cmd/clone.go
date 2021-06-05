@@ -4,15 +4,13 @@ import (
 	"os"
 	"path"
 	"repo/internal/gitclient"
-	"repo/internal/hoster"
+	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/say"
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
 
@@ -38,16 +36,14 @@ var cloneCmd = &cobra.Command{
 	Long:  `Clones selected repositories to the passed location. Adds new ones on reoccurring calls.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer func(start time.Time) {
-			say.InfoLn("%s Finished, took %s", aurora.Red("ॐ").String(), time.Since(start))
-		}(time.Now())
+		defer say.Timer()
 		dirReposRoot := args[0]
 
-		provider, err := gitlab.MakeProvider()
+		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		gitclient.PrepareSsh(provider.Host()) // TODO parse url?
-		repos := provider.Repositories(hoster.RequestOptions{
+		gitclient.PrepareSsh(hoster.Host()) // TODO parse url?
+		repos := hoster.Repositories(h.RequestOptions{
 			Topics:          cloneTopics,
 			Starred:         cloneStarred,
 			ExcludePatterns: cloneExcludePatterns,
@@ -62,7 +58,7 @@ var cloneCmd = &cobra.Command{
 	},
 }
 
-func filterExisting(dirReposRoot string, repos []hoster.ProviderRepository) (result []hoster.ProviderRepository) {
+func filterExisting(dirReposRoot string, repos []h.HosterRepository) (result []h.HosterRepository) {
 	for _, r := range repos {
 		dirName := determineDirectoryName(r.SshUrl)
 		dirRepository := path.Join(dirReposRoot, dirName)
@@ -85,7 +81,7 @@ func determineDirectoryName(sshUrl string) string {
 	return last
 }
 
-func cloneAll(dirReposRoot string, repos []hoster.ProviderRepository) {
+func cloneAll(dirReposRoot string, repos []h.HosterRepository) {
 	tasks := make(chan string)
 	var wg sync.WaitGroup
 	counter := int32(0)
