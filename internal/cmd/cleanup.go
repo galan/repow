@@ -21,12 +21,12 @@ const dirArchived string = "_archived"
 const dirRemoved string = "_removed"
 
 var cleanupQuiet bool
-var cleanupParallel bool
+var cleanupParallelism int
 
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
 	cleanupCmd.Flags().BoolVarP(&cleanupQuiet, "quiet", "q", false, "Output only affected repositories")
-	cleanupCmd.Flags().BoolVarP(&cleanupParallel, "parallel", "p", true, "Process operations parallel")
+	cleanupCmd.Flags().IntVarP(&cleanupParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
 }
 
 var cleanupCmd = &cobra.Command{
@@ -60,8 +60,6 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.
 			color.Magenta("☮").Bold(), time.Since(start), color.Green(counterOk).Bold(), color.Yellow(counterSkipped).Bold(), color.Blue(counterArchived).Bold(), color.Cyan(counterRemoved).Bold())
 	}(time.Now())
 
-	var wg sync.WaitGroup
-
 	dirsFiltered := []os.FileInfo{}
 	for _, dirRepository := range dirs {
 		if dirRepository.Name() != dirArchived && dirRepository.Name() != dirRemoved {
@@ -69,83 +67,87 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, provider hoster.
 		}
 	}
 
-	for _, dirRepository := range dirsFiltered {
+	tasks := make(chan os.FileInfo)
+	var wg sync.WaitGroup
+	for i := 0; i < getParallelism(cleanupParallelism); i++ {
 		wg.Add(1)
-
-		if cleanupParallel {
-			go processDir(dirReposRoot, dirRepository, provider, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, &wg)
-		} else {
-			processDir(dirReposRoot, dirRepository, provider, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, &wg)
-		}
+		go processDir(dirReposRoot, provider, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
 	}
+
+	for _, dirRepository := range dirsFiltered {
+		tasks <- dirRepository
+	}
+	close(tasks)
 	wg.Wait()
 }
 
-func processDir(dirReposRoot string, dirRepository os.FileInfo, provider hoster.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, wg *sync.WaitGroup) {
+func processDir(dirReposRoot string, provider hoster.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, tasks chan os.FileInfo, wg *sync.WaitGroup) {
 	defer wg.Done()
-	dirRepositoryName := dirRepository.Name()
+	for dirRepository := range tasks {
+		dirRepositoryName := dirRepository.Name()
 
-	if !dirRepository.IsDir() {
-		if !cleanupQuiet {
-			say.ProgressWarn(counter, total, nil, dirRepositoryName, "Not a directory (skipping)")
+		if !dirRepository.IsDir() {
+			if !cleanupQuiet {
+				say.ProgressWarn(counter, total, nil, dirRepositoryName, "Not a directory (skipping)")
+			}
+			atomic.AddInt32(counterSkipped, 1)
+			return
 		}
-		atomic.AddInt32(counterSkipped, 1)
-		return
-	}
 
-	dirRepositoryAbsolute := path.Join(dirReposRoot, dirRepositoryName, ".git")
-	if _, err := os.Stat(dirRepositoryAbsolute); os.IsNotExist(err) {
-		if !cleanupQuiet {
-			say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Does not contain a git repository (skipping)")
+		dirRepositoryAbsolute := path.Join(dirReposRoot, dirRepositoryName, ".git")
+		if _, err := os.Stat(dirRepositoryAbsolute); os.IsNotExist(err) {
+			if !cleanupQuiet {
+				say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Does not contain a git repository (skipping)")
+			}
+			atomic.AddInt32(counterSkipped, 1)
+			return
 		}
-		atomic.AddInt32(counterSkipped, 1)
-		return
-	}
 
-	remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, provider.Host())
+		remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, provider.Host())
 
-	if remotePath == "" {
-		say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Unable to determine git remote name (skipping)")
-		atomic.AddInt32(counterSkipped, 1)
-		return
-	}
+		if remotePath == "" {
+			say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Unable to determine git remote name (skipping)")
+			atomic.AddInt32(counterSkipped, 1)
+			return
+		}
 
-	say.Verbose("RemotePath: %s: %s", dirRepositoryName, remotePath)
-	state, err := provider.ProjectState(remotePath)
-	if err != nil {
-		say.ProgressWarn(counter, total, err, dirRepositoryName, "- Unable to determine git remote state (skipping)")
-		atomic.AddInt32(counterSkipped, 1)
-		return
-	}
-	say.Verbose("State for %s: %v", dirRepositoryName, state)
+		say.Verbose("RemotePath: %s: %s", dirRepositoryName, remotePath)
+		state, err := provider.ProjectState(remotePath)
+		if err != nil {
+			say.ProgressWarn(counter, total, err, dirRepositoryName, "- Unable to determine git remote state (skipping)")
+			atomic.AddInt32(counterSkipped, 1)
+			return
+		}
+		say.Verbose("State for %s: %v", dirRepositoryName, state)
 
-	var errorMove error = nil
-	var code string = ""
-	switch state {
-	case hoster.Ok:
-		say.Verbose("Repository %s ok", dirRepositoryName)
-		code = color.Green("✔").Bold().String()
-		atomic.AddInt32(counterOk, 1)
-	case hoster.Archived:
-		errorMove = move(dirReposRoot, dirRepositoryName, dirArchived)
-		code = color.Blue("A").Bold().String() // 📦
-		atomic.AddInt32(counterArchived, 1)
-	case hoster.Removed:
-		errorMove = move(dirReposRoot, dirRepositoryName, dirRemoved)
-		code = color.Cyan("R").Bold().String() // 🗑
-		atomic.AddInt32(counterRemoved, 1)
-	default:
-		say.ProgressError(counter, total, err, dirRepositoryName, "- State for repository is unknown (skipping)")
-		code = color.White("?").Bold().String()
-		atomic.AddInt32(counterSkipped, 1)
-		return
-	}
+		var errorMove error = nil
+		var code string = ""
+		switch state {
+		case hoster.Ok:
+			say.Verbose("Repository %s ok", dirRepositoryName)
+			code = color.Green("✔").Bold().String()
+			atomic.AddInt32(counterOk, 1)
+		case hoster.Archived:
+			errorMove = move(dirReposRoot, dirRepositoryName, dirArchived)
+			code = color.Blue("A").Bold().String() // 📦
+			atomic.AddInt32(counterArchived, 1)
+		case hoster.Removed:
+			errorMove = move(dirReposRoot, dirRepositoryName, dirRemoved)
+			code = color.Cyan("R").Bold().String() // 🗑
+			atomic.AddInt32(counterRemoved, 1)
+		default:
+			say.ProgressError(counter, total, err, dirRepositoryName, "- State for repository is unknown (skipping)")
+			code = color.White("?").Bold().String()
+			atomic.AddInt32(counterSkipped, 1)
+			return
+		}
 
-	if errorMove != nil {
-		say.ProgressError(counter, total, errorMove, dirRepositoryName, "- Unable to move")
-	} else {
-		if !cleanupQuiet || state != hoster.Ok {
-			say.ProgressGeneric(counter, total, code, dirRepositoryName, "")
+		if errorMove != nil {
+			say.ProgressError(counter, total, errorMove, dirRepositoryName, "- Unable to move")
+		} else {
+			if !cleanupQuiet || state != hoster.Ok {
+				say.ProgressGeneric(counter, total, code, dirRepositoryName, "")
+			}
 		}
 	}
 }

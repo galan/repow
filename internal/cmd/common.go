@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"io/ioutil"
+	"math"
 	"os"
 	"path"
 	"path/filepath"
@@ -106,4 +107,8 @@ func collectGitDirsHandled(dir string, provider hoster.Hoster) []model.RepoDir {
 		handleFatalError(errors.New("Argument must point to single git-directory or parent-directory that contains git-directories."))
 	}
 	return gitDirs
+}
+
+func getParallelism(given int) int {
+	return int(math.Max(1, float64(given)))
 }

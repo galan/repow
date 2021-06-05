@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ var cloneTopics []string
 var cloneExcludePatterns []string
 var cloneIncludePatterns []string
 
-var cloneParallel bool
+var cloneParallelism int
 var cloneStarred bool
 
 func init() {
@@ -27,7 +28,7 @@ func init() {
 	cloneCmd.Flags().StringSliceVarP(&cloneTopics, "topic", "t", nil, "Topics (aka tags/labels) to be filtered. Multiple topics are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneExcludePatterns, "exclude", "e", nil, "Regex-pattern not to be matched for the path. Multiple patterns are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneIncludePatterns, "include", "i", nil, "Regex-pattern that needs to be matched for the path. Multiple patterns are possible (and).")
-	cloneCmd.Flags().BoolVarP(&cloneParallel, "parallel", "p", true, "Process operations parallel")
+	cloneCmd.Flags().IntVarP(&cloneParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
 	cloneCmd.Flags().BoolVarP(&cloneStarred, "starred", "s", false, "Filter for starred projects")
 }
 
@@ -37,7 +38,9 @@ var cloneCmd = &cobra.Command{
 	Long:  `Clones selected repositories to the passed location. Adds new ones on reoccurring calls.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer func(start time.Time) { say.InfoLn("🦊 Finished, took %s", time.Since(start)) }(time.Now())
+		defer func(start time.Time) {
+			say.InfoLn("%s Finished, took %s", aurora.Red("ॐ").String(), time.Since(start))
+		}(time.Now())
 		dirReposRoot := args[0]
 
 		provider, err := gitlab.MakeProvider()
@@ -83,27 +86,31 @@ func determineDirectoryName(sshUrl string) string {
 }
 
 func cloneAll(dirReposRoot string, repos []hoster.ProviderRepository) {
-	counter := int32(0)
+	tasks := make(chan string)
 	var wg sync.WaitGroup
-	for _, repo := range repos {
+	counter := int32(0)
+	for i := 0; i < getParallelism(cloneParallelism); i++ {
 		wg.Add(1)
-		if cloneParallel {
-			go clone(dirReposRoot, repo.SshUrl, &counter, len(repos), false, &wg)
-		} else {
-			clone(dirReposRoot, repo.SshUrl, &counter, len(repos), true, &wg)
-		}
+		go clone(dirReposRoot, &counter, len(repos), tasks, &wg)
 	}
+
+	for _, repo := range repos {
+		tasks <- repo.SshUrl
+	}
+
+	close(tasks)
 	wg.Wait()
 }
 
-func clone(dirReposRoot string, sshUrl string, counter *int32, total int, verbose bool, wg *sync.WaitGroup) error {
+func clone(dirReposRoot string, counter *int32, total int, tasks chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	dirName := determineDirectoryName(sshUrl)
-	err := gitclient.Clone(dirReposRoot, dirName, sshUrl, verbose)
-	if err != nil {
-		say.ProgressError(counter, total, err, dirName, "- Unable to clone")
-	} else {
-		say.ProgressSuccess(counter, total, dirName, "")
+	for sshUrl := range tasks {
+		dirName := determineDirectoryName(sshUrl)
+		err := gitclient.Clone(dirReposRoot, dirName, sshUrl)
+		if err != nil {
+			say.ProgressError(counter, total, err, dirName, "- Unable to clone")
+		} else {
+			say.ProgressSuccess(counter, total, dirName, "")
+		}
 	}
-	return err
 }

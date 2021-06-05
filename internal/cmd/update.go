@@ -18,12 +18,12 @@ import (
 )
 
 var updateQuiet bool
-var updateParallel bool
+var updateParallelism int
 
 func init() {
 	rootCmd.AddCommand(updateCmd)
 	updateCmd.Flags().BoolVarP(&updateQuiet, "quiet", "q", false, "Output only affected repositories")
-	updateCmd.Flags().BoolVarP(&updateParallel, "parallel", "p", true, "Process operations in parallel")
+	updateCmd.Flags().IntVarP(&updateParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
 }
 
 var updateCmd = &cobra.Command{
@@ -54,21 +54,22 @@ Mode can be one of:
 			gitclient.PrepareSsh(provider.Host())
 		}
 
-		counter := int32(0)
+		tasks := make(chan *StateContext)
 		var wg sync.WaitGroup
-		for _, gd := range gitDirs {
+		for i := 0; i < getParallelism(updateParallelism); i++ {
 			wg.Add(1)
+			go processRepository(mode, tasks, &wg)
+		}
 
+		counter := int32(0)
+		for _, gd := range gitDirs {
+			//TODO clarify why intermediate var is required?
 			var rdIntermediate model.RepoDir
 			rdIntermediate = gd
-			sc := &StateContext{total: len(gitDirs), counter: &counter, repo: &rdIntermediate}
-
-			if updateParallel {
-				go processRepository(mode, sc, &wg, sc.repo.PathDirName())
-			} else {
-				processRepository(mode, sc, &wg, sc.repo.PathDirName())
-			}
+			tasks <- &StateContext{total: len(gitDirs), counter: &counter, repo: &rdIntermediate}
 		}
+
+		close(tasks)
 		wg.Wait()
 	},
 }
@@ -92,28 +93,23 @@ type StateContext struct {
 	message string
 }
 
-func processRepository(mode string, ctx *StateContext, wg *sync.WaitGroup, foo string) {
+func processRepository(mode string, tasks chan *StateContext, wg *sync.WaitGroup) {
 	defer wg.Done()
-
-	if false {
-		time.Sleep(1 * time.Second)
-		//say.InfoLn("%s %s", ctx.repo.Name, foo)
-		return
-	}
-
-	ctx.ref = gitclient.GetCurrentBranch(ctx.repo.Path)
-	switch mode {
-	case "check":
-		updateCheck(ctx)
-	case "fetch":
-		updateFetch(ctx)
-	case "pull":
-		updateFetch(ctx)
-		if ctx.state != failed && ctx.state != clean {
-			updatePull(ctx)
+	for ctx := range tasks {
+		ctx.ref = gitclient.GetCurrentBranch(ctx.repo.Path)
+		switch mode {
+		case "check":
+			updateCheck(ctx)
+		case "fetch":
+			updateFetch(ctx)
+		case "pull":
+			updateFetch(ctx)
+			if ctx.state != failed && ctx.state != clean {
+				updatePull(ctx)
+			}
 		}
+		printContext(ctx)
 	}
-	printContext(ctx)
 }
 
 func updateCheck(ctx *StateContext) {
