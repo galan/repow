@@ -83,25 +83,25 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 	return repos
 }
 
-func matchesPattern(value string, patterns []string, inverse bool) bool {
+func matchesPattern(value string, patterns []string, expected bool) bool {
 	for _, pattern := range patterns {
 		matched, err := regexp.MatchString(pattern, value)
 		if err != nil {
 			say.Error("Pattern matching failed unexpected for '%s' with %s", value, err)
 			os.Exit(22) // fail-fast
 		}
-		if !inverse && !matched {
+		if matched != expected {
 			return false
 		}
 	}
-	return !inverse && true
+	return true
 }
 
 func matches(options hoster.RequestOptions, path string, tags []string) bool {
-	if !matchesPattern(path, options.IncludePatterns, false) {
+	if !matchesPattern(path, options.IncludePatterns, true) {
 		return false
 	}
-	if matchesPattern(path, options.ExcludePatterns, true) {
+	if !matchesPattern(path, options.ExcludePatterns, false) {
 		return false
 	}
 
@@ -240,7 +240,7 @@ func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoY
 		return nil, false, nil
 	}
 	if response.StatusCode != 200 {
-		say.Verbose("Unable to download repository manifest: %s", response.StatusCode)
+		say.Verbose("Unable to download repository manifest: %d", response.StatusCode)
 		return nil, false, errors.New(fmt.Sprintf("Statuscode %d", response.StatusCode))
 	}
 	if err != nil {
@@ -254,7 +254,7 @@ func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoY
 	result := &model.RepoYaml{}
 	err = result.ReadFromByteArray(contentDecoded)
 	if err != nil {
-		say.Verbose("Invalid content (yaml): %s", result)
+		say.Verbose("Invalid content (yaml): %v", result)
 		return nil, false, nil
 	}
 
@@ -310,6 +310,6 @@ func (g Gitlab) Apply(repo model.RepoMeta) error {
 	if err != nil {
 		say.Error("%s", err)
 	}
-	say.InfoLn("%s %s %s", project, response, err)
+	say.InfoLn("%v %v %v", project, response, err)
 	return nil
 }
