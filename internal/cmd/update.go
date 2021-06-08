@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ Mode can be one of:
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer say.Timer()
+		defer say.Timer(time.Now())
 		modes := []string{"check", "fetch", "pull"}
 
 		mode := args[0]

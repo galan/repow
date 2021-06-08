@@ -5,6 +5,7 @@ import (
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -28,7 +29,7 @@ var applyCmd = &cobra.Command{
 }
 
 func applyProcess(hoster hoster.Hoster, gitDirs []model.RepoDir) {
-	defer say.Timer()
+	defer say.Timer(time.Now())
 	for _, gd := range gitDirs {
 		// validate
 		errs := hoster.Validate(gd.RepoMeta)

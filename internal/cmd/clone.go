@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +37,7 @@ var cloneCmd = &cobra.Command{
 	Long:  `Clones selected repositories to the passed location. Adds new ones on reoccurring calls.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer say.Timer()
+		defer say.Timer(time.Now())
 		dirReposRoot := args[0]
 
 		hoster, err := gitlab.MakeHoster()

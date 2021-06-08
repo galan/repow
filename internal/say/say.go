@@ -94,8 +94,8 @@ func ProgressErrorArray(counter *int32, total int, errs []error, name string, me
 	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, msg, a...)
 }
 
-func Timer() {
+func Timer(start time.Time) {
 	func(start time.Time) {
 		InfoLn("%s Finished, took %s", Repow(), time.Since(start))
-	}(time.Now())
+	}(start)
 }
