@@ -8,14 +8,13 @@ COPY internal/ /src/internal/
 COPY go.mod /src/
 COPY go.sum /src/
 COPY Makefile /src/
-# copy git for the tag
-#COPY .git /src/.git/
 WORKDIR /src/
-#ENV GOROOT=/
 ENV GO111MODULE=on
 RUN make build-linux64
 
 FROM debian:10.9
+RUN apt-get update
+RUN apt-get install -y ca-certificates
 COPY --from=build /src/bin/repow_linux-amd64 /bin/repow
 ENTRYPOINT ["/bin/repow"]
 CMD ["serve"]
