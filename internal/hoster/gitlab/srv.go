@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"repo/internal/hoster"
+	"repo/internal/util"
 
 	"gopkg.in/yaml.v2"
 )
@@ -19,17 +19,18 @@ type WebHookPush struct {
 	} `yaml:"project"`
 }
 
+const REPOW_GITLAB_SECRET_TOKEN = "REPOW_GITLAB_SECRET_TOKEN"
 const GITLAB_SECRET_TOKEN = "GITLAB_SECRET_TOKEN"
 
 func HandleWebhookGitlab(w http.ResponseWriter, r *http.Request) (hoster.Hoster, *WebHookPush, error) {
+	if !matchesSecurityToken(r) {
+		return nil, nil, errors.New("security-token does not match")
+	}
+
 	eventType := r.Header.Get("X-Gitlab-Event")
 	if eventType != "Push Hook" {
 		w.Write([]byte("ignored"))
 		return nil, nil, nil
-	}
-
-	if !matchesSecurityToken(r) {
-		return nil, nil, errors.New("security-token does not match")
 	}
 
 	hoster, err := MakeHoster()
@@ -53,9 +54,6 @@ func HandleWebhookGitlab(w http.ResponseWriter, r *http.Request) (hoster.Hoster,
 func matchesSecurityToken(r *http.Request) bool {
 	// docs: https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#secret-token
 	secretToken := r.Header.Get("X-Gitlab-Token") // if configured
-	if secretToken == "" {
-		return true
-	}
-	value, exists := os.LookupEnv(GITLAB_SECRET_TOKEN)
-	return exists && value == secretToken
+	value := util.GetEnv(REPOW_GITLAB_SECRET_TOKEN, util.GetEnv(GITLAB_SECRET_TOKEN, ""))
+	return value == secretToken
 }
