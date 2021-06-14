@@ -233,6 +233,9 @@ func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoY
 	}
 	file, response, err := g.client.RepositoryFiles.GetFile(remotePath, model.RepoYamlFilename, gfo)
 
+	if err != nil {
+		return nil, false, err
+	}
 	if response == nil {
 		return nil, false, errors.New("No gitlab server response")
 	}
@@ -243,9 +246,7 @@ func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoY
 		say.Verbose("Unable to download repository manifest: %d", response.StatusCode)
 		return nil, false, errors.New(fmt.Sprintf("Statuscode %d", response.StatusCode))
 	}
-	if err != nil {
-		return nil, false, err
-	}
+
 	contentDecoded, errDecode := base64.StdEncoding.DecodeString(file.Content)
 	if errDecode != nil {
 		return nil, false, errors.New(fmt.Sprintf("Invalid base64: %s", file.Content))
