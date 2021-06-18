@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Also support REPOW_GITLAB_SECRET_TOKEN env variable additional to GITLAB_SECRET_TOKEN
+* Quite option for validate command
 
 ### Fixed
 * Install CA-certs (for webhook requests)

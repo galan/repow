@@ -10,8 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var validateQuiet bool
+
 func init() {
 	rootCmd.AddCommand(validateCmd)
+	validateCmd.Flags().BoolVarP(&validateQuiet, "quiet", "q", false, "Output only affected repositories")
 }
 
 var validateCmd = &cobra.Command{
@@ -38,7 +41,9 @@ func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir) {
 		if errValidate != nil {
 			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, gd.Name, "")
 		} else {
-			say.ProgressSuccess(&counter, len(gitDirs), gd.Name, "")
+			if !validateQuiet {
+				say.ProgressSuccess(&counter, len(gitDirs), gd.Name, "")
+			}
 		}
 	}
 }
