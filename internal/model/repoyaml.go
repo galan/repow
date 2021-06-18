@@ -25,9 +25,10 @@ type Org struct {
 */
 
 type Gitlab struct {
-	WikiAccessLevel   *string `yaml:"wiki_access_level"`
-	IssuesAccessLevel *string `yaml:"issues_access_level"`
-	BuildTimeOut      *int    `yaml:"build_timeout"`
+	WikiAccessLevel    *string `yaml:"wiki_access_level"`
+	IssuesAccessLevel  *string `yaml:"issues_access_level"`
+	ForkingAccessLevel *string `yaml:"forking_access_level"`
+	BuildTimeOut       *int    `yaml:"build_timeout"`
 
 	OnlyAllowMergeIfPipelineSucceeds          *bool `yaml:"only_allow_merge_if_pipeline_succeeds"`
 	OnlyAllowMergeIfAllDiscussionsAreResolved *bool `yaml:"only_allow_merge_if_all_discussions_are_resolved"`

@@ -306,6 +306,10 @@ func (g Gitlab) Apply(repo model.RepoMeta) error {
 		ial := gg.AccessControlValue(*repo.RepoYaml.Gitlab.IssuesAccessLevel)
 		epo.IssuesAccessLevel = &ial
 	}
+	if repo.RepoYaml.Gitlab.ForkingAccessLevel != nil {
+		fal := gg.AccessControlValue(*repo.RepoYaml.Gitlab.ForkingAccessLevel)
+		epo.ForkingAccessLevel = &fal
+	}
 
 	project, response, err := g.client.Projects.EditProject(repo.RemotePath, epo)
 	if err != nil {

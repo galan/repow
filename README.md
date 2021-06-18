@@ -7,7 +7,7 @@
 repow provids commands for everyday operations on the one hand, and automatically applying configuration via a manifest-file on the other. The commands can be used independently of each other.
 
 Commands that target everyday operations:
-* **clone** - clone multiple repos. Filter by topics (tags), patterns or starred in parallel.
+* **clone** - clone multiple repos in parallel. Filter by topics (tags), patterns or starred.
 * **cleanup** - non-destructive cleanup of remotely deleted or archived repositories.
 * **update** - checks, fetches and pulls all of your local repositories in parallel and prints condensed commit messages.
 
@@ -66,6 +66,7 @@ contacts:
 gitlab:
   wiki_access_level: "private"
   shared_runners_enabled: false
+  forking_access_level: false
   only_allow_merge_if_pipeline_succeeds: true
   remove_source_branch_after_merge: true
 ```
@@ -78,7 +79,7 @@ gitlab:
 * `org`: Map of freely definable key/value-pairs, that associate the project to your organization landscape.
 * `annotations`: A freely definable key/value-structure for your own metadata (influenced by kubernetes annotations)
 * `contacts`: List of users, that are associated with the project. How this is used depends on your organization-structure. Eg. it can be used to give other developers go-to persons for questions, merge-requests, etc..
-* `gitlab`: Provides several gitlab hoster-specific project settings, that can be modified. The following values are supported at the moment: `wiki_access_level`, `issues_access_level`, `build_timeout`, `only_allow_merge_if_pipeline_succeeds`, `only_allow_merge_if_all_discussions_are_resolved`, `remove_source_branch_after_merge`, `shared_runners_enabled`. If you miss a settings, feel free to open an issue.
+* `gitlab`: Provides several gitlab hoster-specific project settings, that can be modified. The following values are supported at the moment: `wiki_access_level`, `issues_access_level`, `forking_access_level`, `build_timeout`, `only_allow_merge_if_pipeline_succeeds`, `only_allow_merge_if_all_discussions_are_resolved`, `remove_source_branch_after_merge`, `shared_runners_enabled`. If you miss a settings, feel free to open an issue.
 
 The example above will result in the following topics: `language_java`, `language_kotlin`, `foo`, `bar`, `org_chapter_backend`, `org_squad_user`
 
@@ -95,4 +96,4 @@ When using Gitlab for Git-hosting, you'll need to set the following environment 
 You define you token with API scope in your [Gitlab preferences](https://gitlab.com/-/profile/personal_access_tokens).
 
 ## Github
-Currently not supported (planned). Support is of course welcome.
+Currently not supported (planned). Help is of course welcome.
