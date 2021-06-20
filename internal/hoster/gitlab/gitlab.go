@@ -9,6 +9,7 @@ import (
 
 	"repo/internal/hoster"
 	"repo/internal/model"
+	"repo/internal/notification"
 	"repo/internal/say"
 	"repo/internal/util"
 
@@ -313,6 +314,7 @@ func (g Gitlab) Apply(repo model.RepoMeta) error {
 
 	project, response, err := g.client.Projects.EditProject(repo.RemotePath, epo)
 	if err != nil {
+		notification.NotifyInvalidRepository(repo.RemotePath, err.Error())
 		say.Error("%s", err)
 	}
 	say.InfoLn("%v %v %v", project, response, err)

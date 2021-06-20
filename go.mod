@@ -9,6 +9,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/slack-go/slack v0.9.1
 	github.com/spf13/cobra v1.1.3
 	github.com/xanzy/go-gitlab v0.50.0
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect

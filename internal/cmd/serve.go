@@ -8,6 +8,7 @@ import (
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
+	"repo/internal/notification"
 	"repo/internal/say"
 	"repo/internal/util"
 
@@ -16,6 +17,7 @@ import (
 
 const envServerPort string = "REPOW_SERVER_PORT"
 const envOptionalContacts string = "REPOW_OPTIONAL_CONTACTS"
+
 const defaultServerPort = "8080"
 
 var serverPort string = defaultServerPort
@@ -98,9 +100,11 @@ func isContactsOptional(r *http.Request) bool {
 
 func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, name string, remotePath string, ref string) {
 	say.InfoLn("Processing webhook for %s", remotePath)
+
 	// fetch repo.yaml
 	repoYaml, validYaml, err := hoster.DownloadRepoyaml(remotePath, ref)
 	if err != nil {
+		notifyInvalidRepository(remotePath, "Unable to retrieve repo.yaml (probably does not exist)")
 		say.Error("%s", err)
 		msg := fmt.Sprintf("error: %v", err)
 		w.Write([]byte(msg))
@@ -112,6 +116,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, nam
 	// validate
 	errs := hoster.Validate(repoRemote.RepoMeta, isContactsOptional(r))
 	if errs != nil {
+		notifyInvalidRepository(remotePath, fmt.Sprintf("%v", errs))
 		say.Error("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)
 		msg := fmt.Sprintf("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)
 		w.Write([]byte(msg))
@@ -121,4 +126,8 @@ func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, nam
 	say.Verbose("Repoyaml: %s", repoYaml)
 
 	hoster.Apply(repoRemote.RepoMeta)
+}
+
+func notifyInvalidRepository(remotePath string, errorMessage string) {
+	notification.NotifyInvalidRepository(remotePath, errorMessage)
 }

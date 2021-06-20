@@ -16,7 +16,7 @@ Beside, repow encourages the concept of self-contained repositories by defining 
 Commands utilizing the manifest-file:
 * **validate** - Validating the manifest-file (existince, patterns, usernames, etc.)
 * **apply** - Applying the manifest files values to the hoster repository
-* **serve** - Starts the webhook server, that will listen to the changes on the default branch to apply changes automatically on push events.
+* **serve** - Starts the webhook server, that will listen to the changes on the default branch to apply changes automatically on push events. You can configure slack to obtain notifications for invalid manifest files.
 
 
 # Architecture and process
@@ -87,6 +87,13 @@ The example above will result in the following topics: `language_java`, `languag
 The webhook listens for push events on the default branch, and applies the manifest-file on events.
 
 repow starts a webserver listening in port 8080 when called with the command `repow serve`. A ready-to-use docker-container exists here: https://hub.docker.com/repository/docker/galan/repow
+
+## Environment variables
+List of supported environment variables:
+* `REPOW_GITLAB_API_TOKEN`
+* `REPOW_GITLAB_SECRET_TOKEN`
+* `REPOW_SLACK_API_TOKEN`
+* `REPOW_SLACK_CHANNEL_ID`
 
 # Hoster
 
