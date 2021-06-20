@@ -11,10 +11,12 @@ import (
 )
 
 var validateQuiet bool
+var validateOptionalContacts bool
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
 	validateCmd.Flags().BoolVarP(&validateQuiet, "quiet", "q", false, "Output only affected repositories")
+	validateCmd.Flags().BoolVarP(&validateOptionalContacts, "optionalContacts", "c", false, "Allow empty contacts (existing contacts still will be validated)")
 }
 
 var validateCmd = &cobra.Command{
@@ -37,7 +39,7 @@ func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir) {
 
 	for _, gd := range gitDirs {
 		say.Verbose("Validating %s", gd.Name)
-		errValidate := hoster.Validate(gd.RepoMeta)
+		errValidate := hoster.Validate(gd.RepoMeta, validateOptionalContacts)
 		if errValidate != nil {
 			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, gd.Name, "")
 		} else {

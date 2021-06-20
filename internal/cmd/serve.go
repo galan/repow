@@ -9,11 +9,13 @@ import (
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
+	"repo/internal/util"
 
 	"github.com/spf13/cobra"
 )
 
 const envServerPort string = "REPOW_SERVER_PORT"
+const envOptionalContacts string = "REPOW_OPTIONAL_CONTACTS"
 const defaultServerPort = "8080"
 
 var serverPort string = defaultServerPort
@@ -80,6 +82,20 @@ type WebHookRequest struct {
 	RepoYaml model.RepoYaml
 }
 
+func isContactsOptional(r *http.Request) bool {
+	urlValue := r.URL.Query().Get("optionalContacts")
+	if urlValue == "true" {
+		return true
+	} else if urlValue == "false" {
+		return false
+	}
+	envDefault := util.GetEnv(envOptionalContacts, "false")
+	if envDefault == "true" {
+		return true
+	}
+	return false
+}
+
 func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, name string, remotePath string, ref string) {
 	say.InfoLn("Processing webhook for %s", remotePath)
 	// fetch repo.yaml
@@ -94,7 +110,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, nam
 	repoRemote := model.MakeRepoRemote(remotePath, repoYaml, validYaml)
 
 	// validate
-	errs := hoster.Validate(repoRemote.RepoMeta)
+	errs := hoster.Validate(repoRemote.RepoMeta, isContactsOptional(r))
 	if errs != nil {
 		say.Error("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)
 		msg := fmt.Sprintf("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)

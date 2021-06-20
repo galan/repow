@@ -10,8 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var applyOptionalContacts bool
+
 func init() {
 	rootCmd.AddCommand(applyCmd)
+	applyCmd.Flags().BoolVarP(&applyOptionalContacts, "optionalContacts", "c", false, "Allow empty contacts (existing contacts still will be validated)")
 }
 
 var applyCmd = &cobra.Command{
@@ -32,7 +35,7 @@ func applyProcess(hoster hoster.Hoster, gitDirs []model.RepoDir) {
 	defer say.Timer(time.Now())
 	for _, gd := range gitDirs {
 		// validate
-		errs := hoster.Validate(gd.RepoMeta)
+		errs := hoster.Validate(gd.RepoMeta, applyOptionalContacts)
 		if errs != nil {
 			say.InfoLn("Skipping invalid %s", gd.Name)
 			continue

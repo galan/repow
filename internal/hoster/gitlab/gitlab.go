@@ -144,7 +144,7 @@ func (g Gitlab) ProjectState(projectPath string) (hoster.CleanupState, error) {
 	return hoster.Ok, nil
 }
 
-func (g Gitlab) Validate(repo model.RepoMeta) []error {
+func (g Gitlab) Validate(repo model.RepoMeta, optionalContacts bool) []error {
 	var errs []error
 	// repo.yaml itself
 	if repo.RepoYaml == nil {
@@ -176,7 +176,7 @@ func (g Gitlab) Validate(repo model.RepoMeta) []error {
 		errs = *validatePattern(orgName, "Organization name", pattern, &errs)
 	}
 	// contacts
-	if len(repo.RepoYaml.Contacts) == 0 {
+	if len(repo.RepoYaml.Contacts) == 0 && !optionalContacts {
 		errs = append(errs, errors.New("No contacts provided"))
 	} else {
 		for _, contact := range repo.RepoYaml.Contacts {

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Also support REPOW_GITLAB_SECRET_TOKEN env variable additional to GITLAB_SECRET_TOKEN
 * Quite option for validate command
 * Support for `gitlab.forking_access_level`
+* Optional contacts are allowed with the option `-c` in validate/apply and via `REPOW_OPTIONAL_CONTACTS` env variable in serve
 
 ### Fixed
 * Install CA-certs (for webhook requests)
