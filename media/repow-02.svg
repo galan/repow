@@ -11,16 +11,17 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="256"
+   height="256"
+   viewBox="0 0 67.733333 67.733335"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="repow-02.svg"
-   enable-background="new"
-   inkscape:export-xdpi="135.97696"
-   inkscape:export-ydpi="135.97696">
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   style="enable-background:new"
+   inkscape:export-filename="/home/daniel/gdrive/dev/git-public/repow/media/repow-02-256.png">
   <defs
      id="defs2">
     <linearGradient
@@ -37,11 +38,11 @@
        id="radialGradient6160"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1,0,0,0.26535981,0,63.118275)"
-       cx="85.057492"
-       cy="85.917264"
-       fx="85.057492"
-       fy="85.917264"
-       r="31.95427" />
+       cx="85.057495"
+       cy="85.917267"
+       fx="85.057495"
+       fy="85.917267"
+       r="31.954269" />
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
@@ -60,9 +61,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="381.99367"
-     inkscape:cy="621.98631"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="104.95415"
+     inkscape:cy="123.56702"
      inkscape:document-units="mm"
      inkscape:current-layer="layer3"
      showgrid="false"
@@ -73,7 +74,8 @@
      inkscape:window-maximized="1"
      inkscape:snap-center="true"
      inkscape:snap-others="false"
-     showguides="false" />
+     showguides="false"
+     units="px" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -90,13 +92,13 @@
      inkscape:label="Star"
      inkscape:groupmode="layer"
      id="layer1"
-     style="">
+     transform="translate(0,-229.26665)">
     <circle
-       style="fill:#2450c8;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1"
+       style="fill:#2450c8;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
        id="path6185"
-       cx="72.029137"
-       cy="108.32109"
-       r="39.849888"
+       cx="33.863049"
+       cy="263.13696"
+       r="33.58242"
        inkscape:export-xdpi="163.17236"
        inkscape:export-ydpi="163.17236" />
     <path
@@ -114,7 +116,7 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="m 107.13645,129.65893 -13.4081,-3.93485 -4.257795,13.30907 -8.53454,-11.06444 -11.267505,8.2646 -0.401073,-13.9678 -13.973409,0.0633 7.88559,-11.53593 -11.341948,-8.16214 13.160227,-4.697727 -4.378247,-13.269933 13.408103,3.934843 4.257795,-13.309071 8.534541,11.064441 11.267504,-8.264595 0.401073,13.967797 13.973414,-0.06332 -7.88559,11.53593 11.34194,8.16213 -13.16022,4.69773 z"
-       transform="rotate(9.8995473,71.126289,37.167337)"
+       transform="matrix(0.83017544,0.14488206,-0.14488206,0.83017544,-20.560221,162.01373)"
        inkscape:export-xdpi="163.17236"
        inkscape:export-ydpi="163.17236" />
     <path
@@ -132,7 +134,7 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="m 107.13645,129.65893 -13.4081,-3.93485 -4.257795,13.30907 -8.53454,-11.06444 -11.267505,8.2646 -0.401073,-13.9678 -13.973409,0.0633 7.88559,-11.53593 -11.341948,-8.16214 13.160227,-4.697727 -4.378247,-13.269933 13.408103,3.934843 4.257795,-13.309071 8.534541,11.064441 11.267504,-8.264595 0.401073,13.967797 13.973414,-0.06332 -7.88559,11.53593 11.34194,8.16213 -13.16022,4.69773 z"
-       transform="matrix(0.6922659,0.12081411,-0.12081411,0.6922659,26.994198,23.996804)"
+       transform="matrix(0.5833884,0.10181284,-0.10181284,0.5833884,-4.0889311,192.07495)"
        inkscape:export-xdpi="163.17236"
        inkscape:export-ydpi="163.17236" />
   </g>
@@ -140,59 +142,62 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Fade"
-     style="display:inline;filter:url(#filter981)">
-    <ellipse
+     style="display:inline;filter:url(#filter981)"
+     transform="translate(0,-229.26665)">
+    <circle
        id="circle1000"
-       style="fill:#2450c8;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;fill-opacity:1"
+       style="fill:#2450c8;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
        cy="108.32109"
        cx="72.029137"
-       r="39.849888" />
+       r="0" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer3"
-     inkscape:label="font orig">
+     inkscape:label="font orig"
+     transform="translate(0,-229.26665)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.91032982px;line-height:1.25;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.46029305;stroke-linejoin:bevel;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
-       x="5.6207218"
-       y="127.91057"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:14.25072479px;line-height:1.25;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.91606855;stroke-linejoin:bevel;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+       x="-64.020485"
+       y="267.56149"
        id="text6150"
        transform="rotate(-14.408916)"
        inkscape:export-xdpi="163.17236"
        inkscape:export-ydpi="163.17236"><tspan
          sodipodi:role="line"
          id="tspan6148"
-         x="5.6207218"
-         y="127.91057"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:19.75555611px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;stroke:#000000;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
+         x="-64.020485"
+         y="267.56149"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.6484623px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;stroke:#000000;stroke-width:2.91606855;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none;stroke-dashoffset:0;paint-order:stroke fill markers"
          rotate="0 0 0 0 0 0 0"
          dx="0 0 0 0 0"
-         dy="0 0 1.8"><tspan
-           style="font-size:13.40555573px"
+         dy="0 0 1.5169015"><tspan
+           style="font-size:11.29716969px;stroke-width:2.91606855"
            id="tspan830"
-           dy="-3.6800001 -1.88"><tspan
-   style="font-size:18.34444427px"
+           dy="-3.1012206 -1.5843192"><tspan
+   style="font-size:15.45928574px;stroke-width:2.91606855"
    id="tspan841"
-   dy="1.88">R</tspan>E</tspan><tspan
-           style="font-size:18.34444427px"
+   dy="1.5843192">R</tspan>E</tspan><tspan
+           style="font-size:15.45928574px;stroke-width:2.91606855"
            id="tspan840"
-           dy="1.8800035">P<tspan
-   style="font-size:25.39999962px;letter-spacing:-5.35516644px"
+           dy="1.5843221">P<tspan
+   style="font-size:21.40516663px;letter-spacing:-4.51292181px;stroke-width:2.91606855"
    id="tspan855"
-   dy="2.74"
-   dx="-2.4699996">O</tspan></tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:18.34444427px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-7.79196358px;writing-mode:lr-tb;text-anchor:start;stroke-width:3.46029305;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none"
+   dy="2.3090611"
+   dx="-2.0815256">O</tspan></tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:15.45928574px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:-6.56646681px;writing-mode:lr-tb;text-anchor:start;stroke-width:2.91606855;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.79999995;stroke-dasharray:none"
            id="tspan6183"
            rotate="0 0 0"
-           dy="-2.74"
-           dx="2.4699996">VV</tspan></tspan></text>
+           dy="-2.3090611"
+           dx="2.0815256">VV</tspan></tspan></text>
   </g>
   <g
      inkscape:label="font copy"
      id="g1129"
      inkscape:groupmode="layer"
-     style="display:none">
+     style="display:none"
+     transform="translate(0,-229.26665)">
     <text
        transform="rotate(-14.095752)"
        id="text1127"

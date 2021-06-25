@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
-...
+* Option for own slack prefix/emoji in notifications via `REPOW_SLACK_PREFIX`
 
 
 ## [0.2.0] - 2021-06-20

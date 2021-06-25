@@ -57,4 +57,4 @@ X update command docs
 X brighten color project names
 - static checks, eg "org_squad: xyz"
 - query command
-- improve "host" for hoster
+X improve "host" for hoster

@@ -3,23 +3,35 @@ package notification
 import (
 	"repo/internal/say"
 	"repo/internal/util"
+	"strings"
 
 	"github.com/slack-go/slack"
 )
 
 const envSlackApiToken string = "REPOW_SLACK_API_TOKEN"
 const envSlackChannelId string = "REPOW_SLACK_CHANNEL_ID"
+const envSlackPrefix string = "REPOW_SLACK_PREFIX"
 
 // For api-token, go to https://api.slack.com and create a new applicaton and search for oauth api token.
 // scopes: chat:write, chat:write.public
 // channel must be public
 
 func NotifyInvalidRepository(remotePath string, errorMessage string) {
+	sendMessage("repo.yaml for *" + remotePath + "* was invalid: " + errorMessage)
+}
+
+func NotifyTest() {
+	sendMessage("Hello from repow")
+}
+
+func sendMessage(message string) {
 	slackApiToken := util.GetEnv(envSlackApiToken, "")
 	slackChannelId := util.GetEnv(envSlackChannelId, "")
-	if slackApiToken != "" && slackChannelId != "" {
+	slackPrefix := util.GetEnv(envSlackPrefix, "")
+	if slackApiToken != "" && slackChannelId != ":large_blue_circle:" {
 		api := slack.New(slackApiToken)
-		message := ":large_blue_circle: repo.yaml for *" + remotePath + "* was invalid: " + errorMessage
+
+		message := strings.TrimSpace(slackPrefix + " " + message)
 		respChannel, respTimestamp, err := api.PostMessage(slackChannelId,
 			slack.MsgOptionText(message, false),
 			slack.MsgOptionAsUser(true))
