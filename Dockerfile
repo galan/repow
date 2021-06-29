@@ -16,5 +16,6 @@ FROM debian:10.9
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 COPY --from=build /src/bin/repow_linux-amd64 /bin/repow
+EXPOSE 8080/tcp
 ENTRYPOINT ["/bin/repow"]
 CMD ["serve"]
