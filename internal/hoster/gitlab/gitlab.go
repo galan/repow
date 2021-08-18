@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
+	"time"
 
 	"repo/internal/hoster"
 	"repo/internal/model"
@@ -18,6 +20,10 @@ import (
 
 const REPOW_GITLAB_API_TOKEN = "REPOW_GITLAB_API_TOKEN"
 const GITLAB_API_TOKEN = "GITLAB_API_TOKEN"
+
+const REPOW_GITLAB_DOWNLOAD_RETRIES = "REPOW_GITLAB_DOWNLOAD_RETRIES"
+const GITLAB_DOWNLOAD_RETRIES = "GITLAB_DOWNLOAD_RETRIES"
+const GITLAB_DOWNLOAD_RETRIES_DEFAULT = 6 // lower values didn't solve the issue
 
 func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
@@ -148,12 +154,12 @@ func (g Gitlab) ProjectState(projectPath string) (hoster.CleanupState, error) {
 func (g Gitlab) Validate(repo model.RepoMeta, optionalContacts bool) []error {
 	var errs []error
 	// repo.yaml itself
-	if repo.RepoYaml == nil {
-		errs = append(errs, errors.New("No repo.yaml file exists"))
-		return errs
-	}
 	if !repo.RepoYamlValid {
 		errs = append(errs, errors.New("Invalid repo.yaml file"))
+		return errs
+	}
+	if repo.RepoYaml == nil {
+		errs = append(errs, errors.New("No repo.yaml file exists"))
 		return errs
 	}
 
@@ -229,23 +235,9 @@ func (g Gitlab) contactExists(remotePath, contact string) bool {
 func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoYaml, bool, error) {
 	say.Verbose("Downloading repo.yaml for project %s", remotePath)
 
-	gfo := &gg.GetFileOptions{
-		Ref: gg.String(branch),
-	}
-	file, response, err := g.client.RepositoryFiles.GetFile(remotePath, model.RepoYamlFilename, gfo)
-
+	file, err := downloadFile(g, remotePath, branch)
 	if err != nil {
 		return nil, false, err
-	}
-	if response == nil {
-		return nil, false, errors.New("No gitlab server response")
-	}
-	if response.StatusCode == 404 {
-		return nil, false, nil
-	}
-	if response.StatusCode != 200 {
-		say.Verbose("Unable to download repository manifest: %d", response.StatusCode)
-		return nil, false, errors.New(fmt.Sprintf("Statuscode %d", response.StatusCode))
 	}
 
 	contentDecoded, errDecode := base64.StdEncoding.DecodeString(file.Content)
@@ -261,6 +253,46 @@ func (g Gitlab) DownloadRepoyaml(remotePath string, branch string) (*model.RepoY
 	}
 
 	return result, true, nil
+}
+
+func downloadFile(g Gitlab, remotePath string, branch string) (*gg.File, error) {
+	gfo := &gg.GetFileOptions{
+		Ref: gg.String(branch),
+	}
+	downloadFileRetries, errRetries := strconv.Atoi(util.GetEnv(REPOW_GITLAB_DOWNLOAD_RETRIES, util.GetEnv(GITLAB_DOWNLOAD_RETRIES, strconv.Itoa(GITLAB_DOWNLOAD_RETRIES_DEFAULT))))
+	if errRetries != nil {
+		downloadFileRetries = GITLAB_DOWNLOAD_RETRIES_DEFAULT
+	}
+
+	var file *gg.File
+	var response *gg.Response
+	var err error
+
+	for attempts := 0; attempts < downloadFileRetries; attempts++ {
+		file, response, err = g.client.RepositoryFiles.GetFile(remotePath, model.RepoYamlFilename, gfo)
+		if err == nil {
+			break
+		}
+		// retry mostly because of unreliable gitlab api due to "net/http: TLS handshake timeout"
+		say.Error("Downloading file encountered error (retrying %d): %s", attempts+1, err)
+		time.Sleep(2 * time.Second)
+	}
+
+	if response != nil && response.StatusCode == 404 {
+		return nil, errors.New("repo.yaml does not exist")
+	}
+	if err != nil {
+		return nil, err
+	}
+	if response == nil {
+		return nil, errors.New("No gitlab server response")
+	}
+	if response.StatusCode != 200 {
+		say.Verbose("Unable to download repository manifest: %d", response.StatusCode)
+		return nil, errors.New(fmt.Sprintf("Gitlab API returned statuscode %d", response.StatusCode))
+	}
+
+	return file, err
 }
 
 func (g Gitlab) Apply(repo model.RepoMeta) error {

@@ -6,13 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+
+## [0.2.1] - 2021-08-18
+
+### Added
+
 * Option for own slack prefix/emoji in notifications via `REPOW_SLACK_PREFIX`
+* Option for retries when downloading the repo.yaml file `REPOW_GITLAB_DOWNLOAD_RETRIES`/`GITLAB_DOWNLOAD_RETRIES`
 
 
 ## [0.2.0] - 2021-06-20
 
 ### Added
-* Also support REPOW_GITLAB_SECRET_TOKEN env variable additional to GITLAB_SECRET_TOKEN
+* Also support `REPOW_GITLAB_SECRET_TOKEN` env variable additional to `GITLAB_SECRET_TOKEN`
 * Quite option for validate command
 * Support for `gitlab.forking_access_level`
 * Optional contacts are allowed with the option `-c` in validate/apply and via `REPOW_OPTIONAL_CONTACTS` env variable in serve
@@ -55,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/galan/repow/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/galan/repow/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/galan/repow/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/galan/repow/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/galan/repow/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/galan/repow/compare/v0.0.1...v0.0.2
