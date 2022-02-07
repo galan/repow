@@ -26,11 +26,12 @@ DOCKER_IMAGE_NAME=repow
 
 all: test build
 
-#test:
-#	$(GOTEST) -v ./...
 clean:
 	@$(GOCLEAN)
 	@rm -rf $(BINARY_PATH)/
+
+test:
+	$(GOTEST) -v ./...
 
 build: build-linux64 build-linuxarm build-osx
 build-linux64:
@@ -46,6 +47,10 @@ docker-build:
 	docker build . -t $(DOCKER_IMAGE_NAME):$(VERSION)
 docker-run:
 	docker run -it --rm -p 8080:8080 --name repow $(DOCKER_IMAGE_NAME):$(VERSION)
+
+
+
+
 
 
 # potential make alternative: https://taskfile.dev
