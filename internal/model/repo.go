@@ -86,18 +86,23 @@ func DetermineRemotePath(pathRepository string, hosterHost string) string {
 
 	var result string
 	for _, line := range lines {
-		//origin	https://oauth2:ccc@gitlab.com/group/services/url-shortener.git (fetch)
-		//origin	git@gitlab.com:group/infrastructure/project.git (fetch)
-		//origin	https://github.com/galan/maven-parent.git (fetch)
-		//origin	git@gitlab.com:group/infrastructure/project.git (fetch)
-		//TODO distinguish remote url notations, improve this approach
-		re, _ := regexp.Compile(`^origin[\t ]+((https|ssh):\/\/.*@?|git@)` + hosterHost + `[\/:]([a-zA-Z0-9_\/-]+)([.]git)?[\t ]+.fetch.$`)
-		matches := re.MatchString(line)
-		say.Verbose("Checking remote: %s, matches: %v", line, matches)
-		if matches {
-			result = re.FindStringSubmatch(line)[3]
+		result = ParseRemotePath(line, hosterHost)
+		if len(result) > 0 {
 			break
 		}
+	}
+	return result
+}
+
+//TODO distinguish remote url notations, improve this approach
+func ParseRemotePath(path string, hosterHost string) string {
+	var result string
+	re, _ := regexp.Compile(`^origin[\t ]+((https|ssh):\/\/.*@?|git@)` + hosterHost + `[\/:]([a-zA-Z0-9_\/.-]+)[\t ]+.fetch.$`)
+	matches := re.MatchString(path)
+	say.Verbose("Checking remote: %s, matches: %v", path, matches)
+	if matches {
+		result = re.FindStringSubmatch(path)[3]
+		result = strings.TrimSuffix(result, ".git") // greedy regex has issues in golang, workaround
 	}
 	return result
 }

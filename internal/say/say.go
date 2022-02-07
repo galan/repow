@@ -14,7 +14,6 @@ import (
 var VerboseEnabled bool
 
 func Repow() string {
-	//aurora.Red("ॐ").String()
 	return Yellow("✪").Bold().String()
 }
 

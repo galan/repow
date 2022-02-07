@@ -124,7 +124,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, nam
 		return
 	}
 
-	say.Verbose("Repoyaml: %s", repoYaml)
+	say.Verbose("Repoyaml: %v", repoYaml)
 
 	hoster.Apply(repoRemote.RepoMeta)
 }

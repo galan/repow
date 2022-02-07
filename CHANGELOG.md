@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+* Repository detection for names with dot in `cleanup`
+
 
 ## [0.2.1] - 2021-08-18
 
 ### Added
-
 * Option for own slack prefix/emoji in notifications via `REPOW_SLACK_PREFIX`
 * Option for retries when downloading the repo.yaml file `REPOW_GITLAB_DOWNLOAD_RETRIES`/`GITLAB_DOWNLOAD_RETRIES`
 
