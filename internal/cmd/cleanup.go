@@ -26,7 +26,7 @@ var cleanupParallelism int
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
 	cleanupCmd.Flags().BoolVarP(&cleanupQuiet, "quiet", "q", false, "Output only affected repositories")
-	cleanupCmd.Flags().IntVarP(&cleanupParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
+	cleanupCmd.Flags().IntVarP(&cleanupParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
 }
 
 var cleanupCmd = &cobra.Command{

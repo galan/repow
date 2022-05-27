@@ -27,7 +27,7 @@ func init() {
 	cloneCmd.Flags().StringSliceVarP(&cloneTopics, "topic", "t", nil, "Topics (aka tags/labels) to be filtered. Multiple topics are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneExcludePatterns, "exclude", "e", nil, "Regex-pattern not to be matched for the path. Multiple patterns are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneIncludePatterns, "include", "i", nil, "Regex-pattern that needs to be matched for the path. Multiple patterns are possible (and).")
-	cloneCmd.Flags().IntVarP(&cloneParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
+	cloneCmd.Flags().IntVarP(&cloneParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
 	cloneCmd.Flags().BoolVarP(&cloneStarred, "starred", "s", false, "Filter for starred projects")
 }
 

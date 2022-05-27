@@ -23,7 +23,7 @@ var updateParallelism int
 func init() {
 	rootCmd.AddCommand(updateCmd)
 	updateCmd.Flags().BoolVarP(&updateQuiet, "quiet", "q", false, "Output only affected repositories")
-	updateCmd.Flags().IntVarP(&updateParallelism, "parallelism", "p", 64, "How many process should run in parallel, 1 would be no parallelism.")
+	updateCmd.Flags().IntVarP(&updateParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
 }
 
 var updateCmd = &cobra.Command{
