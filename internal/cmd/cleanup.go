@@ -91,7 +91,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 				say.ProgressWarn(counter, total, nil, dirRepositoryName, "Not a directory (skipping)")
 			}
 			atomic.AddInt32(counterSkipped, 1)
-			return
+			continue
 		}
 
 		dirRepositoryAbsolute := path.Join(dirReposRoot, dirRepositoryName, ".git")
@@ -100,7 +100,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 				say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Does not contain a git repository (skipping)")
 			}
 			atomic.AddInt32(counterSkipped, 1)
-			return
+			continue
 		}
 
 		remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, hoster.Host())
@@ -108,7 +108,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 		if remotePath == "" {
 			say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Unable to determine git remote name (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
-			return
+			continue
 		}
 
 		say.Verbose("RemotePath: %s: %s", dirRepositoryName, remotePath)
@@ -116,7 +116,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 		if err != nil {
 			say.ProgressWarn(counter, total, err, dirRepositoryName, "- Unable to determine git remote state (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
-			return
+			continue
 		}
 		say.Verbose("State for %s: %v", dirRepositoryName, state)
 
@@ -139,7 +139,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 			say.ProgressError(counter, total, err, dirRepositoryName, "- State for repository is unknown (skipping)")
 			code = color.White("?").Bold().String()
 			atomic.AddInt32(counterSkipped, 1)
-			return
+			continue
 		}
 
 		if errorMove != nil {
