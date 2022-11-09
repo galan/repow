@@ -26,4 +26,4 @@ jobs:
       run: make build
 
     - name: Test Version
-      run: bin/repow_linux-amd64 version
+      run: bin/repow-linux-amd64 version

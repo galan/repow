@@ -18,7 +18,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15
+        go-version: 1.16
 
     - name: Set Version Variable for ldflags
       run: echo "VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
@@ -34,7 +34,7 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          bin/repow_linux-amd64
+          bin/repow-linux-amd64
           bin/repow-linux-arm64
-          bin/repow_darwin-amd64
+          bin/repow-darwin-amd64
           bin/repow-darwin-arm64

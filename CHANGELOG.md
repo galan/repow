@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Added binaries for Mac arm64 architecture
 
+### Changed
+* Unified binary filenames
+
 ### Fixed
 * Fix error handling in cleanup task
 
