@@ -10,7 +10,7 @@ COPY go.sum /src/
 COPY Makefile /src/
 WORKDIR /src/
 ENV GO111MODULE=on
-RUN make build-linux64
+RUN make build-linux-amd
 
 FROM debian:10.9
 RUN apt-get update
