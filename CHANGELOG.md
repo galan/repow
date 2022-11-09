@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.3] - 2022-11-09
+
+### Added
+* Added binaries for Mac arm64 architecture
+
+### Fixed
+* Fix error handling in cleanup task
+
+
+
 ## [0.2.2] - 2022-05-27
 
 ### Changed
@@ -15,12 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-
 ## [0.2.1] - 2021-08-18
 
 ### Added
 * Option for own slack prefix/emoji in notifications via `REPOW_SLACK_PREFIX`
 * Option for retries when downloading the repo.yaml file `REPOW_GITLAB_DOWNLOAD_RETRIES`/`GITLAB_DOWNLOAD_RETRIES`
+
 
 
 ## [0.2.0] - 2021-06-20
@@ -34,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * Install CA-certs (for webhook requests)
+
 
 
 ## [0.1.0] - 2021-06-06
@@ -69,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/galan/repow/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/galan/repow/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/galan/repow/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/galan/repow/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/galan/repow/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/galan/repow/compare/v0.1.0...v0.2.0
