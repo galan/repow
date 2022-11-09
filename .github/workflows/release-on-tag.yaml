@@ -34,6 +34,7 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          bin/repow_darwin-amd64
           bin/repow_linux-amd64
           bin/repow-linux-arm64
+          bin/repow_darwin-amd64
+          bin/repow-darwin-arm64
