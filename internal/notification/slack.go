@@ -27,8 +27,8 @@ func NotifyTest() {
 func sendMessage(message string) {
 	slackApiToken := util.GetEnv(envSlackApiToken, "")
 	slackChannelId := util.GetEnv(envSlackChannelId, "")
-	slackPrefix := util.GetEnv(envSlackPrefix, "")
-	if slackApiToken != "" && slackChannelId != ":large_blue_circle:" {
+	slackPrefix := util.GetEnv(envSlackPrefix, ":large_blue_circle:")
+	if slackApiToken != "" && slackChannelId != "" {
 		api := slack.New(slackApiToken)
 
 		message := strings.TrimSpace(slackPrefix + " " + message)
