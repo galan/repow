@@ -28,23 +28,26 @@ var validateCmd = &cobra.Command{
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		gitDirs := collectGitDirsHandled(args[0], hoster)
-		validateProcess(hoster, gitDirs)
+		dirReposRoot := getAbsoluteRepoRoot(args[0])
+		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
+		validateProcess(hoster, gitDirs, dirReposRoot)
 	},
 }
 
-func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir) {
+func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir, dirReposRoot string) {
 	defer say.Timer(time.Now())
 	counter := int32(0)
 
 	for _, gd := range gitDirs {
-		say.Verbose("Validating %s", gd.Name)
+		dirRepoRelative := getRelativRepoDir(gd.Path, dirReposRoot)
+
+		say.Verbose("Validating %s", dirRepoRelative)
 		errValidate := hoster.Validate(gd.RepoMeta, validateOptionalContacts)
 		if errValidate != nil {
-			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, gd.Name, "")
+			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, "")
 		} else {
 			if !validateQuiet {
-				say.ProgressSuccess(&counter, len(gitDirs), gd.Name, "")
+				say.ProgressSuccess(&counter, len(gitDirs), dirRepoRelative, "")
 			}
 		}
 	}
