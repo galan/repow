@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"math"
 	"os"
 	"path"
@@ -81,31 +81,56 @@ func validateFlags(cmd *cobra.Command, args []string) error {
 // if yes add to array
 // if no go thru every directory within dir
 // collect all directories that contain .git
-func collectGitDirs(dir string, hoster h.Hoster) (result []model.RepoDir, err error) {
-	dirAbs, _ := filepath.Abs(dir)
-	if util.ExistsDir(path.Join(dirAbs, ".git")) { // check if given path is git-repository
-		repo, err := model.MakeRepoDir(dirAbs, hoster.Host())
-		if err != nil {
-			say.Verbose("Failed determine repository directory: %s", err)
-			return result, err
+func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err error) {
+
+	walk := func(dir string, d fs.DirEntry, e error) error {
+		if !d.IsDir() {
+			return nil
 		}
-		result = append(result, *repo)
-	} else { // else search for all sub-dir git-repositories
-		dirs, err := ioutil.ReadDir(dirAbs)
-		if err != nil {
-			return result, err
+
+		if util.ExistsDir(path.Join(dir, ".git")) { // check if given path is git-repository
+			repo, err := model.MakeRepoDir(dir, hoster.Host())
+			if err != nil {
+				say.Verbose("Failed determine repository directory: %s", e)
+				return e
+			}
+			result = append(result, *repo)
+			return nil
 		}
-		for _, d := range dirs {
-			if util.ExistsDir(path.Join(dirAbs, d.Name(), ".git")) {
-				repo, err := model.MakeRepoDir(path.Join(dir, d.Name()), hoster.Host())
-				if err != nil {
-					say.Verbose("Not adding dir %s: %s", d.Name(), err)
-					return result, err
+
+		fmt.Println(dir, d.Name(), "directory?", d.IsDir())
+		return nil
+	}
+	err = filepath.WalkDir(root, walk)
+	return result, err
+
+	/*
+		dirAbs, _ := filepath.Abs(dir)
+		if util.ExistsDir(path.Join(dirAbs, ".git")) { // check if given path is git-repository
+			repo, err := model.MakeRepoDir(dirAbs, hoster.Host())
+			if err != nil {
+				say.Verbose("Failed determine repository directory: %s", err)
+				return result, err
+			}
+			result = append(result, *repo)
+		} else { // else search for all sub-dir git-repositories
+			dirs, err := ioutil.ReadDir(dirAbs)
+			if err != nil {
+				return result, err
+			}
+			for _, d := range dirs {
+				if util.ExistsDir(path.Join(dirAbs, d.Name(), ".git")) {
+					repo, err := model.MakeRepoDir(path.Join(dir, d.Name()), hoster.Host())
+					if err != nil {
+						say.Verbose("Not adding dir %s: %s", d.Name(), err)
+						return result, err
+					}
+					result = append(result, *repo)
 				}
-				result = append(result, *repo)
 			}
 		}
-	}
+	*/
+	say.Info("found paths: %v", result)
 	return result, nil
 }
 

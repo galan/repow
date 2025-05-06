@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"math"
 	"repo/internal/gitclient"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -179,13 +180,14 @@ func printContext(ctx *StateContext) {
 	}
 
 	// 80 chars for the separator, minus name of repo, minus spaces
-	outSep := strings.Repeat("_", 80-len(ctx.repo.Name)-1)
+	//outSep := strings.Repeat("_", 80-len(ctx.repo.Name)-1)
+	outSep := strings.Repeat("_", int(math.Max(0, (float64)(80-len(ctx.repo.RemotePath)-1))))
 	outBranch := aurora.Magenta(ctx.ref).String()
 	outBehind := ""
 	if ctx.behind > 0 {
 		outBehind = "↓" + strconv.Itoa(ctx.behind)
 	}
-	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.repo.Name, "%s (%s%s)", outSep, outBranch, outBehind)
+	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.repo.RemotePath, "%s (%s%s)", outSep, outBranch, outBehind)
 
 	msg := strings.TrimSpace(ctx.message)
 	if len(msg) > 0 {
