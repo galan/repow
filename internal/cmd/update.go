@@ -3,11 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"math"
 	"repo/internal/gitclient"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
-	"repo/internal/util"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -32,23 +33,24 @@ var updateCmd = &cobra.Command{
 	Long: `Checks/fetches/pulls updates for the given repository or repositories below the given directory.
 
 Mode can be one of:
-  check - Outputs the current state of the repositories
+  check - Outputs the current state of the local repositories
   fetch - Fetches remote changes and outputs the changes
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
 		defer say.Timer(time.Now())
-		modes := []string{"check", "fetch", "pull"}
+		modesAvailable := []string{"check", "fetch", "pull"}
 
 		mode := args[0]
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		if !util.IsInSlice(mode, modes...) {
-			handleFatalError(errors.New(fmt.Sprintf("mode has to be one of: %s", modes)))
+		if !slices.Contains(modesAvailable, mode) {
+			handleFatalError(errors.New(fmt.Sprintf("mode has to be one of: %s", modesAvailable)))
 		}
 
-		gitDirs := collectGitDirsHandled(args[1], hoster)
+		dirReposRoot := getAbsoluteRepoRoot(args[1])
+		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
 
 		if mode == "fetch" || mode == "pull" {
 			gitclient.PrepareSsh(hoster.Host())
@@ -60,13 +62,18 @@ Mode can be one of:
 			wg.Add(1)
 			go processRepository(mode, tasks, &wg)
 		}
-
 		counter := int32(0)
 		for _, gd := range gitDirs {
 			//TODO clarify why intermediate var is required?
 			var rdIntermediate model.RepoDir
 			rdIntermediate = gd
-			tasks <- &StateContext{total: len(gitDirs), counter: &counter, repo: &rdIntermediate}
+			dirRelative := getRelativRepoDir(gd.Path, dirReposRoot)
+			tasks <- &StateContext{
+				total:       len(gitDirs),
+				counter:     &counter,
+				repo:        &rdIntermediate,
+				dirRelative: dirRelative,
+			}
 		}
 
 		close(tasks)
@@ -83,14 +90,15 @@ const (
 )
 
 type StateContext struct {
-	total   int
-	counter *int32
-	mutex   sync.Mutex // avoid mixed outputs
-	repo    *model.RepoDir
-	state   State
-	ref     string
-	behind  int
-	message string
+	total       int
+	counter     *int32
+	mutex       sync.Mutex // avoid mixed outputs
+	repo        *model.RepoDir
+	dirRelative string
+	state       State
+	ref         string
+	behind      int
+	message     string
 }
 
 func processRepository(mode string, tasks chan *StateContext, wg *sync.WaitGroup) {
@@ -176,13 +184,14 @@ func printContext(ctx *StateContext) {
 	}
 
 	// 80 chars for the separator, minus name of repo, minus spaces
-	outSep := strings.Repeat("_", 80-len(ctx.repo.Name)-1)
+
+	outSep := strings.Repeat("_", int(math.Max(0, (float64)(80-len(ctx.dirRelative)-1))))
 	outBranch := aurora.Magenta(ctx.ref).String()
 	outBehind := ""
 	if ctx.behind > 0 {
 		outBehind = "↓" + strconv.Itoa(ctx.behind)
 	}
-	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.repo.Name, "%s (%s%s)", outSep, outBranch, outBehind)
+	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.dirRelative, "%s (%s%s)", outSep, outBranch, outBehind)
 
 	msg := strings.TrimSpace(ctx.message)
 	if len(msg) > 0 {

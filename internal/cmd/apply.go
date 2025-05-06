@@ -34,6 +34,8 @@ var applyCmd = &cobra.Command{
 func applyProcess(hoster hoster.Hoster, gitDirs []model.RepoDir) {
 	defer say.Timer(time.Now())
 	for _, gd := range gitDirs {
+		//p, _ := filepath.Abs(dir)
+
 		// validate
 		errs := hoster.Validate(gd.RepoMeta, applyOptionalContacts)
 		if errs != nil {
