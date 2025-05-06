@@ -8,13 +8,13 @@ import (
 	"repo/internal/hoster/gitlab"
 	"repo/internal/say"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
 )
 
+var cloneStyle string
 var cloneTopics []string
 var cloneExcludePatterns []string
 var cloneIncludePatterns []string
@@ -24,11 +24,12 @@ var cloneStarred bool
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
+	cloneCmd.Flags().StringVarP(&cloneStyle, "style", "s", "flat", "Either repositories are cloned 'flat' into the root-dir, or 'recursive' using the groups as directories.")
 	cloneCmd.Flags().StringSliceVarP(&cloneTopics, "topic", "t", nil, "Topics (aka tags/labels) to be filtered. Multiple topics are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneExcludePatterns, "exclude", "e", nil, "Regex-pattern not to be matched for the path. Multiple patterns are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneIncludePatterns, "include", "i", nil, "Regex-pattern that needs to be matched for the path. Multiple patterns are possible (and).")
 	cloneCmd.Flags().IntVarP(&cloneParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
-	cloneCmd.Flags().BoolVarP(&cloneStarred, "starred", "s", false, "Filter for starred projects")
+	cloneCmd.Flags().BoolVarP(&cloneStarred, "starred", "r", false, "Filter for starred projects")
 }
 
 var cloneCmd = &cobra.Command{
@@ -51,6 +52,7 @@ var cloneCmd = &cobra.Command{
 			IncludePatterns: cloneIncludePatterns,
 		})
 		sort.Slice(repos, func(i, j int) bool {
+			//TODO fqn for recursive
 			return repos[i].Name < repos[j].Name
 		})
 
@@ -61,29 +63,26 @@ var cloneCmd = &cobra.Command{
 
 func filterExisting(dirReposRoot string, repos []h.HosterRepository) (result []h.HosterRepository) {
 	for _, r := range repos {
-		dirName := determineDirectoryName(r.SshUrl)
-		dirRepository := path.Join(dirReposRoot, dirName)
+		var dirRepository string
+		if cloneStyle == "flat" {
+			dirRepository = path.Join(dirReposRoot, r.Name)
+		} else if cloneStyle == "recursive" {
+			dirRepository = path.Join(dirReposRoot, r.PathWithNamespace)
+		}
+		say.Info("dirRepository: '%s'\n", dirRepository)
 
 		_, err := os.Stat(dirRepository)
 		if os.IsNotExist(err) {
 			result = append(result, r)
 		} else {
-			say.Verbose("Repository exists already: %s ", dirName)
+			say.Verbose("Repository exists already: %s ", r.PathWithNamespace)
 		}
 	}
 	return
 }
 
-func determineDirectoryName(sshUrl string) string {
-	last := sshUrl[strings.LastIndex(sshUrl, "/")+1:]
-	if strings.HasSuffix(last, ".git") {
-		last = last[:len(last)-4]
-	}
-	return last
-}
-
 func cloneAll(dirReposRoot string, repos []h.HosterRepository) {
-	tasks := make(chan string)
+	tasks := make(chan h.HosterRepository)
 	var wg sync.WaitGroup
 	counter := int32(0)
 	for i := 0; i < getParallelism(cloneParallelism); i++ {
@@ -92,22 +91,28 @@ func cloneAll(dirReposRoot string, repos []h.HosterRepository) {
 	}
 
 	for _, repo := range repos {
-		tasks <- repo.SshUrl
+		tasks <- repo
 	}
 
 	close(tasks)
 	wg.Wait()
 }
 
-func clone(dirReposRoot string, counter *int32, total int, tasks chan string, wg *sync.WaitGroup) {
+func clone(dirReposRoot string, counter *int32, total int, tasks chan h.HosterRepository, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for sshUrl := range tasks {
-		dirName := determineDirectoryName(sshUrl)
-		err := gitclient.Clone(dirReposRoot, dirName, sshUrl)
+	for repo := range tasks {
+		var repoDir string
+		if cloneStyle == "flat" {
+			repoDir = path.Join(dirReposRoot, repo.Name)
+		} else if cloneStyle == "recursive" {
+			repoDir = path.Join(dirReposRoot, repo.PathWithNamespace)
+		}
+
+		err := gitclient.Clone(dirReposRoot, repoDir, repo.SshUrl)
 		if err != nil {
-			say.ProgressError(counter, total, err, dirName, "- Unable to clone")
+			say.ProgressError(counter, total, err, repo.PathWithNamespace, "- Unable to clone")
 		} else {
-			say.ProgressSuccess(counter, total, dirName, "")
+			say.ProgressSuccess(counter, total, repoDir, "")
 		}
 	}
 }

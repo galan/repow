@@ -7,7 +7,7 @@ import (
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/say"
-	"repo/internal/util"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,11 +17,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var updateStyle string
 var updateQuiet bool
 var updateParallelism int
 
 func init() {
 	rootCmd.AddCommand(updateCmd)
+	updateCmd.Flags().StringVarP(&updateStyle, "style", "s", "flat", "Checks all repositories in the root-dir 'flat', or searches for them 'recursive'.")
 	updateCmd.Flags().BoolVarP(&updateQuiet, "quiet", "q", false, "Output only affected repositories")
 	updateCmd.Flags().IntVarP(&updateParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
 }
@@ -38,14 +40,14 @@ Mode can be one of:
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
 		defer say.Timer(time.Now())
-		modes := []string{"check", "fetch", "pull"}
+		modesAvailable := []string{"check", "fetch", "pull"}
 
 		mode := args[0]
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		if !util.IsInSlice(mode, modes...) {
-			handleFatalError(errors.New(fmt.Sprintf("mode has to be one of: %s", modes)))
+		if !slices.Contains(modesAvailable, mode) {
+			handleFatalError(errors.New(fmt.Sprintf("mode has to be one of: %s", modesAvailable)))
 		}
 
 		gitDirs := collectGitDirsHandled(args[1], hoster)
@@ -72,6 +74,7 @@ Mode can be one of:
 		close(tasks)
 		wg.Wait()
 	},
+	PreRunE: validateFlags,
 }
 
 type State int

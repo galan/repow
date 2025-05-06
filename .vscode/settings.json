@@ -18,5 +18,6 @@
         "statusBarItem.remoteBackground": "#8f3607",
         "statusBarItem.remoteForeground": "#e7e7e7"
     },
-    "peacock.color": "#8f3607"
+    "peacock.color": "#8f3607",
+    "makefile.configureOnOpen": false
 }

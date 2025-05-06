@@ -47,7 +47,7 @@ type RepoYaml struct {
 	Annotations map[string]string `yaml:"annotations"`
 	Contacts    []string          `yaml:"contacts"`
 	Gitlab      Gitlab            `yaml:"gitlab"`
-	//Github
+	//TODO Github
 }
 
 func (r *RepoYaml) ReadFromString(content string) error {

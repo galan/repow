@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"repo/internal/model"
 	"repo/internal/say"
 	"repo/internal/util"
+	"slices"
 
 	"github.com/spf13/cobra"
 )
@@ -64,6 +66,15 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 		}
 		return nil
 	}
+}
+
+func validateFlags(cmd *cobra.Command, args []string) error {
+	var stylesAvailable = []string{"flat", "recursive"}
+	var style = cmd.Flag("style").Value.String()
+	if !slices.Contains(stylesAvailable, style) {
+		return fmt.Errorf("invalid value for style: %q", style)
+	}
+	return nil
 }
 
 // check if .git in dirRoot

@@ -22,10 +22,12 @@ type Hoster interface {
 }
 
 type HosterRepository struct {
-	Id     int
-	Name   string
-	Topics []string
-	SshUrl string
+	Id                   int
+	Name                 string
+	PathWithNamespace    string
+	PathWithoutNamespace string
+	Topics               []string
+	SshUrl               string
 }
 
 type CleanupState int

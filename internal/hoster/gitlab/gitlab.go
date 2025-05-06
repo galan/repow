@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"repo/internal/say"
 	"repo/internal/util"
 
+	"github.com/xanzy/go-gitlab"
 	gg "github.com/xanzy/go-gitlab"
 )
 
@@ -25,15 +27,19 @@ const REPOW_GITLAB_DOWNLOAD_RETRIES = "REPOW_GITLAB_DOWNLOAD_RETRIES"
 const GITLAB_DOWNLOAD_RETRIES = "GITLAB_DOWNLOAD_RETRIES"
 const GITLAB_DOWNLOAD_RETRIES_DEFAULT = 6 // lower values didn't solve the issue
 
+const REPOW_GITLAB_HOST = "REPOW_GITLAB_HOST"
+
 func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
-	value := util.GetEnv(REPOW_GITLAB_API_TOKEN, util.GetEnv(GITLAB_API_TOKEN, ""))
-	if value == "" {
-		return result, errors.New("The " + REPOW_GITLAB_API_TOKEN + " or " + GITLAB_API_TOKEN + " environment-variable has to be set")
+	valueApiToken := util.GetEnv(REPOW_GITLAB_API_TOKEN, util.GetEnv(GITLAB_API_TOKEN, ""))
+	if valueApiToken == "" {
+		return result, errors.New("the " + REPOW_GITLAB_API_TOKEN + " or " + GITLAB_API_TOKEN + " environment-variable has to be set")
 	}
 
+	result.host = util.GetEnv(REPOW_GITLAB_HOST, "gitlab.com")
+
 	var errClient error
-	result.client, errClient = gg.NewClient(value)
+	result.client, errClient = gg.NewClient(valueApiToken, gitlab.WithBaseURL("https://"+result.Host()))
 	if errClient != nil {
 		return nil, errClient
 	}
@@ -42,10 +48,11 @@ func MakeHoster() (*Gitlab, error) {
 
 type Gitlab struct {
 	client *gg.Client
+	host   string
 }
 
 func (g Gitlab) Host() string {
-	return "gitlab.com"
+	return g.host
 }
 
 func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepository {
@@ -77,9 +84,13 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 			total++
 
 			if matches(options, project.PathWithNamespace, project.TagList) {
+				//_, pathWithoutNamespace, _ := strings.Cut(project.PathWithNamespace, "/")
+				//say.Info("\npath: %s (was: %s)", rootlessPath, project.PathWithNamespace)
 				repos = append(repos, hoster.HosterRepository{
-					Id:     project.ID,
-					Name:   project.Name,
+					Id:                project.ID,
+					Name:              project.Name,
+					PathWithNamespace: project.PathWithNamespace,
+					//PathWithoutNamespace: pathWithoutNamespace,
 					Topics: project.TagList,
 					SshUrl: project.SSHURLToRepo})
 			}
@@ -87,6 +98,7 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 		projectOptions.Page++
 	}
 	say.InfoLn(" %d retrieved (%d filtered)\n", len(repos), total-len(repos))
+	//os.Exit(1)
 	return repos
 }
 
@@ -195,7 +207,7 @@ func (g Gitlab) Validate(repo model.RepoMeta, optionalContacts bool) []error {
 	// gitlab features
 	gl := repo.RepoYaml.Gitlab
 	allowed := []string{"", "enabled", "private", "disabled"}
-	if gl.WikiAccessLevel != nil && !util.IsInSlice(*gl.WikiAccessLevel, allowed...) {
+	if gl.WikiAccessLevel != nil && !slices.Contains(allowed, *gl.WikiAccessLevel) {
 		errs = append(errs, errors.New(fmt.Sprintf("WikiAccessLevel must be one of: %s", allowed)))
 	}
 	//TODO check more gitlab values

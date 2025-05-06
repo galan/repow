@@ -41,6 +41,15 @@
 			"args": ["clone", "${env:HOME}/temp/repow/dev", "-i", "\/infrastructure.*",  "-i", ".*pig.*", "-e", ".*foo.*", "-e", ".*bar.*"]
 		},
 		{
+			"name": "clone (recursive)",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/cmd/app/main.go",
+			"env": {},
+			"args": ["clone", "${env:HOME}/temp/repow/recursive", "-s", "recursive"]
+		},
+		{
 			"name": "cleanup",
 			"type": "go",
 			"request": "launch",
