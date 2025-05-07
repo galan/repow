@@ -17,6 +17,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const dirArchived string = "_archived"
+const dirRemoved string = "_removed"
+
 func handleFatalError(err error) {
 	if err != nil {
 		say.Error("%s", err)

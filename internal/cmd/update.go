@@ -18,9 +18,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//const dirArchived string = "_archived"
-//const dirRemoved string = "_removed"
-
 var updateStyle string
 var updateQuiet bool
 var updateParallelism int
