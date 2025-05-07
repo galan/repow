@@ -77,14 +77,18 @@ func validateFlags(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// check if .git in dirRoot
-// if yes add to array
-// if no go thru every directory within dir
-// collect all directories that contain .git
+// check all directories recursivly for .git directory
+// collect them and return the array
 func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err error) {
+
+	ignored := []string{path.Join(root, dirArchived), path.Join(root, dirRemoved)}
 
 	walk := func(dir string, d fs.DirEntry, e error) error {
 		if !d.IsDir() {
+			return nil
+		}
+
+		if slices.Contains(ignored, dir) {
 			return nil
 		}
 
@@ -95,10 +99,11 @@ func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err e
 				return e
 			}
 			result = append(result, *repo)
-			return nil
+			//say.Info("Appended %s\n", dir)
+			return fs.SkipDir
 		}
 
-		fmt.Println(dir, d.Name(), "directory?", d.IsDir())
+		//fmt.Println(dir, d.Name(), "directory?", d.IsDir())
 		return nil
 	}
 	err = filepath.WalkDir(root, walk)

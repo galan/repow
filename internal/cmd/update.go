@@ -18,6 +18,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+//const dirArchived string = "_archived"
+//const dirRemoved string = "_removed"
+
 var updateStyle string
 var updateQuiet bool
 var updateParallelism int
@@ -35,7 +38,7 @@ var updateCmd = &cobra.Command{
 	Long: `Checks/fetches/pulls updates for the given repository or repositories below the given directory.
 
 Mode can be one of:
-  check - Outputs the current state of the repositories
+  check - Outputs the current state of the local repositories
   fetch - Fetches remote changes and outputs the changes
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
@@ -180,7 +183,6 @@ func printContext(ctx *StateContext) {
 	}
 
 	// 80 chars for the separator, minus name of repo, minus spaces
-	//outSep := strings.Repeat("_", 80-len(ctx.repo.Name)-1)
 	outSep := strings.Repeat("_", int(math.Max(0, (float64)(80-len(ctx.repo.RemotePath)-1))))
 	outBranch := aurora.Magenta(ctx.ref).String()
 	outBehind := ""

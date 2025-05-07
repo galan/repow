@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	h "repo/internal/hoster"
@@ -20,11 +19,13 @@ import (
 const dirArchived string = "_archived"
 const dirRemoved string = "_removed"
 
+var cleanupStyle string
 var cleanupQuiet bool
 var cleanupParallelism int
 
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
+	cleanupCmd.Flags().StringVarP(&cleanupStyle, "style", "s", "flat", "Cleans all repositories in the root-dir 'flat', or searches for them 'recursive'.")
 	cleanupCmd.Flags().BoolVarP(&cleanupQuiet, "quiet", "q", false, "Output only affected repositories")
 	cleanupCmd.Flags().IntVarP(&cleanupParallelism, "parallelism", "p", 32, "How many process should run in parallel, 1 would be no parallelism.")
 }
@@ -39,16 +40,21 @@ var cleanupCmd = &cobra.Command{
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		dirs, err := ioutil.ReadDir(dirReposRoot)
-		if err != nil {
-			handleFatalError(errors.New("Unable to read repository root directory (" + err.Error() + ")"))
-		}
+		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
 
-		checkRepositories(dirReposRoot, dirs, hoster)
+		/*
+			dirs, err := ioutil.ReadDir(dirReposRoot)
+			if err != nil {
+				handleFatalError(errors.New("Unable to read repository root directory (" + err.Error() + ")"))
+			}
+		*/
+
+		checkRepositories(dirReposRoot, gitDirs, hoster)
 	},
+	PreRunE: validateFlags,
 }
 
-func checkRepositories(dirReposRoot string, dirs []os.FileInfo, hoster h.Hoster) {
+func checkRepositories(dirReposRoot string, dirs []model.RepoDir, hoster h.Hoster) {
 	counter := int32(0)
 	counterOk := int32(0)
 	counterSkipped := int32(0)
@@ -62,8 +68,9 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, hoster h.Hoster)
 
 	dirsFiltered := []os.FileInfo{}
 	for _, dirRepository := range dirs {
-		if dirRepository.Name() != dirArchived && dirRepository.Name() != dirRemoved {
-			dirsFiltered = append(dirsFiltered, dirRepository)
+		if dirRepository.Name != dirArchived && dirRepository.Name != dirRemoved {
+			//dirsFiltered = append(dirsFiltered, dirRepository)
+			say.Info("%s", dirRepository.Name)
 		}
 	}
 
