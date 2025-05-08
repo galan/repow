@@ -20,14 +20,16 @@ import (
 	gg "github.com/xanzy/go-gitlab"
 )
 
-const REPOW_GITLAB_API_TOKEN = "REPOW_GITLAB_API_TOKEN"
-const GITLAB_API_TOKEN = "GITLAB_API_TOKEN"
+const (
+	REPOW_GITLAB_API_TOKEN = "REPOW_GITLAB_API_TOKEN"
+	GITLAB_API_TOKEN       = "GITLAB_API_TOKEN"
 
-const REPOW_GITLAB_DOWNLOAD_RETRIES = "REPOW_GITLAB_DOWNLOAD_RETRIES"
-const GITLAB_DOWNLOAD_RETRIES = "GITLAB_DOWNLOAD_RETRIES"
-const GITLAB_DOWNLOAD_RETRIES_DEFAULT = 6 // lower values didn't solve the issue
+	REPOW_GITLAB_DOWNLOAD_RETRIES   = "REPOW_GITLAB_DOWNLOAD_RETRIES"
+	GITLAB_DOWNLOAD_RETRIES         = "GITLAB_DOWNLOAD_RETRIES"
+	GITLAB_DOWNLOAD_RETRIES_DEFAULT = 6 // lower values didn't solve the issue
 
-const REPOW_GITLAB_HOST = "REPOW_GITLAB_HOST"
+	REPOW_GITLAB_HOST = "REPOW_GITLAB_HOST"
+)
 
 func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
@@ -35,8 +37,6 @@ func MakeHoster() (*Gitlab, error) {
 	if valueApiToken == "" {
 		return result, errors.New("the " + REPOW_GITLAB_API_TOKEN + " or " + GITLAB_API_TOKEN + " environment-variable has to be set")
 	}
-
-	result.host = util.GetEnv(REPOW_GITLAB_HOST, "gitlab.com")
 
 	var errClient error
 	result.client, errClient = gg.NewClient(valueApiToken, gitlab.WithBaseURL("https://"+result.Host()))
@@ -48,11 +48,10 @@ func MakeHoster() (*Gitlab, error) {
 
 type Gitlab struct {
 	client *gg.Client
-	host   string
 }
 
 func (g Gitlab) Host() string {
-	return g.host
+	return util.GetEnv(REPOW_GITLAB_HOST, "gitlab.com")
 }
 
 func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepository {

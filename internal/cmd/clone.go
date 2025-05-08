@@ -59,17 +59,18 @@ var cloneCmd = &cobra.Command{
 		repos = filterExisting(dirReposRoot, repos)
 		cloneAll(dirReposRoot, repos)
 	},
+	PreRunE: validateFlags,
 }
 
 func filterExisting(dirReposRoot string, repos []h.HosterRepository) (result []h.HosterRepository) {
 	for _, r := range repos {
 		var dirRepository string
-		if cloneStyle == "flat" {
+		if Style == styleFlat {
 			dirRepository = path.Join(dirReposRoot, r.Name)
-		} else if cloneStyle == "recursive" {
+		} else if Style == styleRecursive {
 			dirRepository = path.Join(dirReposRoot, r.PathWithNamespace)
 		}
-		say.Info("dirRepository: '%s'\n", dirRepository)
+		//say.Info("dirRepository: '%s'\n", dirRepository)
 
 		_, err := os.Stat(dirRepository)
 		if os.IsNotExist(err) {
@@ -102,9 +103,9 @@ func clone(dirReposRoot string, counter *int32, total int, tasks chan h.HosterRe
 	defer wg.Done()
 	for repo := range tasks {
 		var repoDir string
-		if cloneStyle == "flat" {
+		if Style == styleFlat {
 			repoDir = path.Join(dirReposRoot, repo.Name)
-		} else if cloneStyle == "recursive" {
+		} else if Style == styleRecursive {
 			repoDir = path.Join(dirReposRoot, repo.PathWithNamespace)
 		}
 

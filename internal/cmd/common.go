@@ -17,8 +17,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const dirArchived string = "_archived"
-const dirRemoved string = "_removed"
+const (
+	REPOW_STYLE string = "REPOW_STYLE"
+)
+
+const (
+	dirArchived string = "_archived"
+	dirRemoved  string = "_removed"
+
+	styleFlat      string = "flat"
+	styleRecursive string = "recursive"
+)
 
 func handleFatalError(err error) {
 	if err != nil {
@@ -71,12 +80,15 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 	}
 }
 
+var Style string
+
 func validateFlags(cmd *cobra.Command, args []string) error {
-	var stylesAvailable = []string{"flat", "recursive"}
-	var style = cmd.Flag("style").Value.String()
-	if !slices.Contains(stylesAvailable, style) {
-		return fmt.Errorf("invalid value for style: %q", style)
+	stylesAvailable := []string{styleFlat, styleRecursive}
+	styleSelected := util.GetEnv(REPOW_STYLE, cmd.Flag("style").Value.String())
+	if !slices.Contains(stylesAvailable, styleSelected) {
+		return fmt.Errorf("invalid value for style: %q", styleSelected)
 	}
+	Style = styleSelected
 	return nil
 }
 
