@@ -1,4 +1,4 @@
-FROM golang:1.16-buster AS build
+FROM golang:1.24-bookworm AS build
 
 ARG VERSION=undefinied
 
@@ -12,7 +12,7 @@ WORKDIR /src/
 ENV GO111MODULE=on
 RUN make build-linux-amd
 
-FROM debian:10.9
+FROM debian:12.10
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 COPY --from=build /src/bin/repow-linux-amd64 /bin/repow
