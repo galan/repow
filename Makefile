@@ -19,6 +19,7 @@ BINARY_LINUX_AMD=$(BINARY_NAME)-linux-amd64
 BINARY_LINUX_ARM=$(BINARY_NAME)-linux-arm64
 BINARY_DARWIN_AMD=$(BINARY_NAME)-darwin-amd64
 BINARY_DARWIN_ARM=$(BINARY_NAME)-darwin-arm64
+BINARY_WINDOWS_AMD=$(BINARY_NAME)-windows-amd64
 
 DOCKER_IMAGE_NAME=repow
 
@@ -34,7 +35,7 @@ clean:
 test:
 	$(GOTEST) -v ./...
 
-build: build-linux-amd build-linux-arm build-osx-amd build-osx-arm
+build: build-linux-amd build-linux-arm build-osx-amd build-osx-arm build-windows-amd
 build-linux-amd:
 	@mkdir -p $(BINARY_PATH)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -v -o $(BINARY_PATH)/$(BINARY_LINUX_AMD) $(GO_MAIN)
@@ -47,6 +48,9 @@ build-osx-amd:
 build-osx-arm:
 	@mkdir -p $(BINARY_PATH)
 	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GOBUILD) -v -o $(BINARY_PATH)/$(BINARY_DARWIN_ARM) $(GO_MAIN)
+build-windows-amd:
+	@mkdir -p $(BINARY_PATH)
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -v -o $(BINARY_PATH)/$(BINARY_WINDOWS_AMD) $(GO_MAIN)
 docker-build:
 	docker build . -t $(DOCKER_IMAGE_NAME):$(VERSION)
 docker-run:

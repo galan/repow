@@ -26,7 +26,8 @@ var applyCmd = &cobra.Command{
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		gitDirs := collectGitDirsHandled(args[0], hoster)
+		dirReposRoot := getAbsoluteRepoRoot(args[0])
+		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
 		applyProcess(hoster, gitDirs)
 	},
 }

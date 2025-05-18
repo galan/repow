@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"errors"
-	"io/ioutil"
+	"fmt"
+	"io/fs"
 	"math"
 	"os"
 	"path"
@@ -11,8 +12,22 @@ import (
 	"repo/internal/model"
 	"repo/internal/say"
 	"repo/internal/util"
+	"slices"
+	"strings"
 
 	"github.com/spf13/cobra"
+)
+
+const (
+	REPOW_STYLE string = "REPOW_STYLE"
+)
+
+const (
+	dirArchived string = "_archived"
+	dirRemoved  string = "_removed"
+
+	styleFlat      string = "flat"
+	styleRecursive string = "recursive"
 )
 
 func handleFatalError(err error) {
@@ -47,14 +62,14 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 			}
 			msg = msg + "root-directory with repositories"
 		}
-		msg = "Missing required argument to " + msg
+		msg = "Missing required argument for " + msg
 
 		if argIndex >= len(args) {
 			return errors.New(msg)
 		}
 		repoPath := args[argIndex]
 		if !util.ExistsDir(repoPath) {
-			return errors.New(msg)
+			return errors.New(msg + " (directory does not exist)")
 		}
 		condParent := repoParent && util.ExistsDir(path.Join(repoPath, ".git"))
 		condRoot := repoRoot
@@ -66,36 +81,47 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 	}
 }
 
-// check if .git in dirRoot
-// if yes add to array
-// if no go thru every directory within dir
-// collect all directories that contain .git
-func collectGitDirs(dir string, hoster h.Hoster) (result []model.RepoDir, err error) {
-	dirAbs, _ := filepath.Abs(dir)
-	if util.ExistsDir(path.Join(dirAbs, ".git")) { // check if given path is git-repository
-		repo, err := model.MakeRepoDir(dirAbs, hoster.Host())
-		if err != nil {
-			say.Verbose("Failed determine repository directory: %s", err)
-			return result, err
-		}
-		result = append(result, *repo)
-	} else { // else search for all sub-dir git-repositories
-		dirs, err := ioutil.ReadDir(dirAbs)
-		if err != nil {
-			return result, err
-		}
-		for _, d := range dirs {
-			if util.ExistsDir(path.Join(dirAbs, d.Name(), ".git")) {
-				repo, err := model.MakeRepoDir(path.Join(dir, d.Name()), hoster.Host())
-				if err != nil {
-					say.Verbose("Not adding dir %s: %s", d.Name(), err)
-					return result, err
-				}
-				result = append(result, *repo)
-			}
-		}
+var Style string
+
+func validateFlags(cmd *cobra.Command, args []string) error {
+	stylesAvailable := []string{styleFlat, styleRecursive}
+	styleFlag := cmd.Flag("style").Value.String()
+	styleSelected := util.GetEnv(REPOW_STYLE, styleFlag)
+	if !slices.Contains(stylesAvailable, styleSelected) {
+		return fmt.Errorf("invalid value for style: %q", styleSelected)
 	}
-	return result, nil
+	Style = styleSelected
+	return nil
+}
+
+// check all directories recursivly for .git directory
+// collect them and return the array
+func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err error) {
+
+	ignored := []string{path.Join(root, dirArchived), path.Join(root, dirRemoved)}
+
+	walk := func(dir string, d fs.DirEntry, e error) error {
+		if !d.IsDir() {
+			return nil
+		}
+
+		if slices.Contains(ignored, dir) {
+			return fs.SkipDir
+		}
+
+		if util.ExistsDir(path.Join(dir, ".git")) { // check if given path is git-repository
+			repo, err := model.MakeRepoDir(dir, hoster.Host())
+			if err != nil {
+				say.Verbose("Failed determine repository directory: %s", e)
+				return e
+			}
+			result = append(result, *repo)
+			return fs.SkipDir
+		}
+		return nil
+	}
+	err = filepath.WalkDir(root, walk)
+	return result, err
 }
 
 // convenience function, would exit automatically on error or empty result
@@ -104,11 +130,25 @@ func collectGitDirsHandled(dir string, hoster h.Hoster) []model.RepoDir {
 	handleFatalError(err)
 
 	if len(gitDirs) == 0 {
-		handleFatalError(errors.New("Argument must point to single git-directory or parent-directory that contains git-directories."))
+		handleFatalError(errors.New("argument must point to single git-directory or parent-directory that contains git-directories"))
 	}
 	return gitDirs
 }
 
 func getParallelism(given int) int {
 	return int(math.Max(1, float64(given)))
+}
+
+func getAbsoluteRepoRoot(repositoryArg string) string {
+	abs, err := filepath.Abs(repositoryArg)
+	if err != nil {
+		say.Error("Unable to determine absolute root-dir for %s", err)
+		os.Exit(1)
+	}
+	say.Verbose("Absolute repository root: %s", abs)
+	return abs
+}
+
+func getRelativRepoDir(dirAbsRepoRoot string, dirAbsRepo string) string {
+	return strings.TrimPrefix(strings.TrimPrefix(dirAbsRepoRoot, dirAbsRepo), "/")
 }

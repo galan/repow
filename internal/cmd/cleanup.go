@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -16,9 +16,6 @@ import (
 	color "github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 )
-
-const dirArchived string = "_archived"
-const dirRemoved string = "_removed"
 
 var cleanupQuiet bool
 var cleanupParallelism int
@@ -35,20 +32,18 @@ var cleanupCmd = &cobra.Command{
 	Long:  `Archived or deleted repositories at the hoster are moved aside from the checkout-directory. They are collected non-destructive into separate directories.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
-		dirReposRoot := args[0]
+		dirReposRoot := getAbsoluteRepoRoot(args[0])
+
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		dirs, err := ioutil.ReadDir(dirReposRoot)
-		if err != nil {
-			handleFatalError(errors.New("Unable to read repository root directory (" + err.Error() + ")"))
-		}
+		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
 
-		checkRepositories(dirReposRoot, dirs, hoster)
+		checkRepositories(dirReposRoot, gitDirs, hoster)
 	},
 }
 
-func checkRepositories(dirReposRoot string, dirs []os.FileInfo, hoster h.Hoster) {
+func checkRepositories(dirReposRoot string, dirs []model.RepoDir, hoster h.Hoster) {
 	counter := int32(0)
 	counterOk := int32(0)
 	counterSkipped := int32(0)
@@ -60,102 +55,80 @@ func checkRepositories(dirReposRoot string, dirs []os.FileInfo, hoster h.Hoster)
 			say.Repow(), time.Since(start), color.Green(counterOk).Bold(), color.Yellow(counterSkipped).Bold(), color.Blue(counterArchived).Bold(), color.Cyan(counterRemoved).Bold())
 	}(time.Now())
 
-	dirsFiltered := []os.FileInfo{}
-	for _, dirRepository := range dirs {
-		if dirRepository.Name() != dirArchived && dirRepository.Name() != dirRemoved {
-			dirsFiltered = append(dirsFiltered, dirRepository)
-		}
-	}
-
-	tasks := make(chan os.FileInfo)
+	tasks := make(chan model.RepoDir)
 	var wg sync.WaitGroup
 	for i := 0; i < getParallelism(cleanupParallelism); i++ {
 		wg.Add(1)
-		go processDir(dirReposRoot, hoster, &counter, len(dirsFiltered), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
+		go processDir(dirReposRoot, hoster, &counter, len(dirs), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
 	}
 
-	for _, dirRepository := range dirsFiltered {
+	for _, dirRepository := range dirs {
 		tasks <- dirRepository
 	}
 	close(tasks)
 	wg.Wait()
 }
 
-func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, tasks chan os.FileInfo, wg *sync.WaitGroup) {
+func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int, counterOk *int32, counterSkipped *int32, counterArchived *int32, counterRemoved *int32, tasks chan model.RepoDir, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for dirRepository := range tasks {
-		dirRepositoryName := dirRepository.Name()
 
-		if !dirRepository.IsDir() {
-			if !cleanupQuiet {
-				say.ProgressWarn(counter, total, nil, dirRepositoryName, "Not a directory (skipping)")
-			}
-			atomic.AddInt32(counterSkipped, 1)
-			continue
-		}
+		dirRepoRelative := getRelativRepoDir(dirRepository.Path, dirReposRoot)
 
-		dirRepositoryAbsolute := path.Join(dirReposRoot, dirRepositoryName, ".git")
-		if _, err := os.Stat(dirRepositoryAbsolute); os.IsNotExist(err) {
-			if !cleanupQuiet {
-				say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Does not contain a git repository (skipping)")
-			}
-			atomic.AddInt32(counterSkipped, 1)
-			continue
-		}
-
-		remotePath := model.DetermineRemotePath(dirRepositoryAbsolute, hoster.Host())
+		remotePath := model.DetermineRemotePath(dirRepository.Path, hoster.Host())
 
 		if remotePath == "" {
-			say.ProgressWarn(counter, total, nil, dirRepositoryName, "- Unable to determine git remote name (skipping)")
+			say.ProgressWarn(counter, total, nil, dirRepoRelative, "- Unable to determine git remote name (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
 
-		say.Verbose("RemotePath: %s: %s", dirRepositoryName, remotePath)
+		say.Verbose("RemotePath: %s: %s", dirRepoRelative, remotePath)
 		state, err := hoster.ProjectState(remotePath)
 		if err != nil {
-			say.ProgressWarn(counter, total, err, dirRepositoryName, "- Unable to determine git remote state (skipping)")
+			say.ProgressWarn(counter, total, err, dirRepoRelative, "- Unable to determine git remote state (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
-		say.Verbose("State for %s: %v", dirRepositoryName, state)
+		say.Verbose("State for %s: %v", dirRepoRelative, state)
 
 		var errorMove error = nil
 		var code string = ""
 		switch state {
 		case h.Ok:
-			say.Verbose("Repository %s ok", dirRepositoryName)
+			say.Verbose("Repository %s ok", dirRepoRelative)
 			code = color.Green("✔").Bold().String()
 			atomic.AddInt32(counterOk, 1)
 		case h.Archived:
-			errorMove = move(dirReposRoot, dirRepositoryName, dirArchived)
+			errorMove = move(dirReposRoot, dirRepository.Path, dirArchived)
 			code = color.Blue("A").Bold().String() // 📦
 			atomic.AddInt32(counterArchived, 1)
 		case h.Removed:
-			errorMove = move(dirReposRoot, dirRepositoryName, dirRemoved)
+			errorMove = move(dirReposRoot, dirRepository.Path, dirRemoved)
 			code = color.Cyan("R").Bold().String() // 🗑
 			atomic.AddInt32(counterRemoved, 1)
 		default:
-			say.ProgressError(counter, total, err, dirRepositoryName, "- State for repository is unknown (skipping)")
+			say.ProgressError(counter, total, err, dirRepoRelative, "- State for repository is unknown (skipping)")
 			code = color.White("?").Bold().String()
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
 
 		if errorMove != nil {
-			say.ProgressError(counter, total, errorMove, dirRepositoryName, "- Unable to move")
+			say.ProgressError(counter, total, errorMove, dirRepoRelative, "- Unable to move")
 		} else {
 			if !cleanupQuiet || state != h.Ok {
-				say.ProgressGeneric(counter, total, code, dirRepositoryName, "")
+				say.ProgressGeneric(counter, total, code, dirRepoRelative, "")
 			}
 		}
 	}
 }
 
 func move(dirReposRoot string, dirRepository string, dirTarget string) error {
-	dirAbsSource := path.Join(dirReposRoot, dirRepository)
+	dirRepoRelative := getRelativRepoDir(dirRepository, dirReposRoot)
+	dirAbsSource := dirRepository
 	dirAbsTarget := path.Join(dirReposRoot, dirTarget)
-	dirAbsTargetRepository := path.Join(dirReposRoot, dirTarget, dirRepository)
+	dirAbsTargetRepository := path.Join(dirReposRoot, dirTarget, dirRepoRelative)
 
 	// check & prepare target
 	// create if not exists
@@ -168,14 +141,22 @@ func move(dirReposRoot string, dirRepository string, dirTarget string) error {
 	// check if target is directory
 	fiTarget, _ := os.Stat(dirAbsTarget)
 	if !fiTarget.IsDir() {
-		return errors.New("Directory in target location is not a directory (skipping)")
+		return errors.New("directory in target location is not a directory (skipping)")
 	}
 	// check if target-repository dir already exists
 	if _, err := os.Stat(dirAbsTargetRepository); err == nil {
-		return errors.New("Directory in target location already exists (skipping)")
+		return errors.New("directory in target location already exists (skipping)")
 	}
 
 	//move
+	say.Verbose("Moving %s to %s\n", dirRepoRelative, dirAbsTargetRepository)
+	// mkdirs except last in target directory
+	dirAbsTargetRepositoryParent := filepath.Dir(dirAbsTargetRepository)
+	errMkdir := os.MkdirAll(dirAbsTargetRepositoryParent, 0755)
+	if errMkdir != nil {
+		return errMkdir
+	}
+
 	err := os.Rename(dirAbsSource, dirAbsTargetRepository)
 	if err != nil {
 		return err

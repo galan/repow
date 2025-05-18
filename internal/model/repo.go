@@ -94,7 +94,7 @@ func DetermineRemotePath(pathRepository string, hosterHost string) string {
 	return result
 }
 
-//TODO distinguish remote url notations, improve this approach
+// TODO distinguish remote url notations, improve this approach
 func ParseRemotePath(path string, hosterHost string) string {
 	var result string
 	re, _ := regexp.Compile(`^origin[\t ]+((https|ssh):\/\/.*@?|git@)` + hosterHost + `[\/:]([a-zA-Z0-9_\/.-]+)[\t ]+.fetch.$`)

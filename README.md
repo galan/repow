@@ -6,10 +6,13 @@
 
 repow provids commands for everyday operations on the one hand, and automatically applying configuration via a manifest-file on the other. The commands can be used independently of each other.
 
+**The operations/commands can be used totally independent of each other!**
+There is no need to have a `repo.yaml` file to use the `clone`, `update` or `cleanup` commands, and vice versa.
+
 Commands that target everyday operations:
-* **clone** - clone multiple repos in parallel. Filter by topics (tags), patterns or starred.
-* **cleanup** - non-destructive cleanup of remotely deleted or archived repositories.
+* **clone** - clone multiple repos in parallel. Filter by topics (tags), patterns or starred. Either clones the repositories flat, or recursive using the group structure as directories.
 * **update** - checks, fetches and pulls all of your local repositories in parallel and prints condensed commit messages.
+* **cleanup** - non-destructive cleanup of remotely deleted or archived repositories.
 
 Beside, repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with topics, description, configuration, etc..
 
@@ -24,11 +27,11 @@ Commands utilizing the manifest-file:
 DIAGRAM
 
 Example workflow:
-1. The developer clones all the desired repositories, based on tags, path-patterns (includes/exludes), or starred ones using `repow clone`.
+1. The developer clones all the desired repositories, based on tags, path-patterns (includes/exludes), or starred ones using `repow clone`. Executing this command again will only clone newly added repos.
 2. From time-to-time the developer cleans the directory, containing the git-repositories via `repow cleanup`. Projects that have been deleted at the hoster are moved into a subdirectory `_deleted`, archived ones into `_archived`.
 3. Also in regular intervals the local repositories are fetched or pulled with `repow update fetch` respective `repow update pull`. An overview of the local repositories modifications can be obtained with `repow update check`.
 
-If the manifest-file is used, the configuration can be applied using one of the following methods:
+If the manifest-file is used (not necessary for the steps above and completly optional), the configuration can be applied using one of the following methods:
 * For local execution using the `repow apply` command.
 * For automatic execution by running the `repow serve` or the Docker-container, that listens to the hosters git push webhook. On event, the state of the manifest file is applied directly to the project. That way you keep even track of your project configuration.
 
@@ -43,6 +46,13 @@ With the help of these additional topics, cloning specific selections becomes mu
 
 # Commands
 Detailed help for every command can be obtained using the commandline help via `repow help <command>`
+
+The following environment-variables can be helpful to define default behaviour:
+
+* `REPOW_GITLAB_API_TOKEN`
+* `REPOW_GITLAB_HOST`
+* `REPOW_STYLE`
+
 
 # Repository manifest file `repo.yaml`
 
