@@ -38,3 +38,4 @@ jobs:
           bin/repow-linux-arm64
           bin/repow-darwin-amd64
           bin/repow-darwin-arm64
+          bin/repow-windows-amd64
