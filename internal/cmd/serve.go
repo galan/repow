@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"repo/internal/config"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
 	"repo/internal/notification"
 	"repo/internal/say"
-	"repo/internal/util"
 
 	"github.com/spf13/cobra"
 )
@@ -92,11 +92,7 @@ func isContactsOptional(r *http.Request) bool {
 	} else if urlValue == "false" {
 		return false
 	}
-	envDefault := util.GetEnv(envOptionalContacts, "false")
-	if envDefault == "true" {
-		return true
-	}
-	return false
+	return config.UsedConfig.Repow.OptionalContacts
 }
 
 func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, name string, remotePath string, ref string) {

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"repo/internal/config"
 	h "repo/internal/hoster"
 	"repo/internal/model"
 	"repo/internal/say"
@@ -85,8 +86,8 @@ var Style string
 
 func validateFlags(cmd *cobra.Command, args []string) error {
 	stylesAvailable := []string{styleFlat, styleRecursive}
-	styleFlag := cmd.Flag("style").Value.String()
-	styleSelected := util.GetEnv(REPOW_STYLE, styleFlag)
+
+	styleSelected := config.UsedConfig.Options.Style
 	if !slices.Contains(stylesAvailable, styleSelected) {
 		return fmt.Errorf("invalid value for style: %q", styleSelected)
 	}
