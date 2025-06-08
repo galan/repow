@@ -7,14 +7,13 @@ import (
 	"os"
 	"regexp"
 	"slices"
-	"strconv"
 	"time"
 
+	"repo/internal/config"
 	"repo/internal/hoster"
 	"repo/internal/model"
 	"repo/internal/notification"
 	"repo/internal/say"
-	"repo/internal/util"
 
 	"github.com/xanzy/go-gitlab"
 	gg "github.com/xanzy/go-gitlab"
@@ -33,7 +32,7 @@ const (
 
 func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
-	valueApiToken := util.GetEnv(REPOW_GITLAB_API_TOKEN, util.GetEnv(GITLAB_API_TOKEN, ""))
+	valueApiToken := config.UsedConfig.Gitlab.Token
 	if valueApiToken == "" {
 		return result, errors.New("the " + REPOW_GITLAB_API_TOKEN + " or " + GITLAB_API_TOKEN + " environment-variable has to be set")
 	}
@@ -51,7 +50,7 @@ type Gitlab struct {
 }
 
 func (g Gitlab) Host() string {
-	return util.GetEnv(REPOW_GITLAB_HOST, "gitlab.com")
+	return config.UsedConfig.Gitlab.Host
 }
 
 func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepository {
@@ -270,10 +269,7 @@ func downloadFile(g Gitlab, remotePath string, branch string) (*gg.File, error) 
 	gfo := &gg.GetFileOptions{
 		Ref: gg.String(branch),
 	}
-	downloadFileRetries, errRetries := strconv.Atoi(util.GetEnv(REPOW_GITLAB_DOWNLOAD_RETRIES, util.GetEnv(GITLAB_DOWNLOAD_RETRIES, strconv.Itoa(GITLAB_DOWNLOAD_RETRIES_DEFAULT))))
-	if errRetries != nil {
-		downloadFileRetries = GITLAB_DOWNLOAD_RETRIES_DEFAULT
-	}
+	downloadFileRetries := config.UsedConfig.Options.DownloadRetryCount
 
 	var file *gg.File
 	var response *gg.Response

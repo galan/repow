@@ -13,13 +13,36 @@ There is no need to have a `repo.yaml` file to use the `clone`, `update` or `cle
 
 Either download the [binary](https://github.com/galan/repow/releases) directly, or simply use [mise](https://mise.jdx.dev): `mise use -g ubi:galan/repow`
 
-The following environment-variables can be helpful to define default behaviour:
-* `REPOW_GITLAB_API_TOKEN` - Required (or alternatively `GITLAB_API_TOKEN`)\
+To configure repow use a config file. The default path is `$home/user/.repow.yaml`. You can define a custom path by using the flag parameter `--config`. If neither a the default nor the custom file exists, repow will create a config with default values.
+
+The config has the following structure
+```yaml
+repow:
+  server:
+    port: 8080
+  optionalContacts: false 
+gitlab:
+  host: gitlab.com
+  token: "your_gitlab_token"
+  secretToken: "your_gitlab_secrettoken_here"
+options:
+  downloadRetryCount: 6
+  style: flat
+slack:
+  token: "your_slack_token_here"
+  channelId: "your_slack_channel_here"
+  prefix: ":large_blue_circle:"
+```
+
+You can use environment variables to overide the keys above. To do so each sub section is separated by an underscore. E.g. you want to override repow.server.port the corresponding env variable is `REPOW_SERVER_PORT`.
+
+The following configuration can be helpful to define default behaviour:
+* `gitlab.token` - Required \
 For Gitlab create a [Personal Access Token](https://gitlab.com/-/user_settings/personal_access_tokens) with API scope.
-* `REPOW_GITLAB_HOST`\
+* `gitlab.host`\
 Set if you use a self-host Gitlab
-* `REPOW_STYLE`
-Define your default clone style
+* `options.style`
+Define your default clone style: flat or recursive (preserve groups)
 
 # Commands
 
@@ -108,10 +131,3 @@ The example above will result in the following topics: `language_java`, `languag
 The webhook listens for push events on the default branch, and applies the manifest-file on events.
 
 repow starts a webserver listening in port 8080 when called with the command `repow serve`. A ready-to-use docker-container exists here: https://hub.docker.com/repository/docker/galan/repow
-
-### Environment variables
-List of supported environment variables:
-* `REPOW_GITLAB_API_TOKEN`
-* `REPOW_GITLAB_SECRET_TOKEN`
-* `REPOW_SLACK_API_TOKEN`
-* `REPOW_SLACK_CHANNEL_ID`

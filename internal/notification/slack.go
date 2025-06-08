@@ -1,8 +1,8 @@
 package notification
 
 import (
+	"repo/internal/config"
 	"repo/internal/say"
-	"repo/internal/util"
 	"strings"
 
 	"github.com/slack-go/slack"
@@ -25,9 +25,9 @@ func NotifyTest() {
 }
 
 func sendMessage(message string) {
-	slackApiToken := util.GetEnv(envSlackApiToken, "")
-	slackChannelId := util.GetEnv(envSlackChannelId, "")
-	slackPrefix := util.GetEnv(envSlackPrefix, ":large_blue_circle:")
+	slackApiToken := config.UsedConfig.Slack.Token
+	slackChannelId := config.UsedConfig.Slack.ChannelId
+	slackPrefix := config.UsedConfig.Slack.Prefix
 	if slackApiToken != "" && slackChannelId != "" {
 		api := slack.New(slackApiToken)
 

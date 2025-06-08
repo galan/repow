@@ -24,7 +24,6 @@ var cloneStarred bool
 
 func init() {
 	rootCmd.AddCommand(cloneCmd)
-	cloneCmd.Flags().StringVarP(&cloneStyle, "style", "y", "flat", "Either repositories are cloned 'flat' into the root-dir, or 'recursive' using the groups as directories.")
 	cloneCmd.Flags().StringSliceVarP(&cloneTopics, "topic", "t", nil, "Topics (aka tags/labels) to be filtered. Multiple topics are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneExcludePatterns, "exclude", "e", nil, "Regex-pattern not to be matched for the path. Multiple patterns are possible (and).")
 	cloneCmd.Flags().StringSliceVarP(&cloneIncludePatterns, "include", "i", nil, "Regex-pattern that needs to be matched for the path. Multiple patterns are possible (and).")

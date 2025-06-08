@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"repo/internal/config"
 	"repo/internal/hoster"
-	"repo/internal/util"
 
 	"gopkg.in/yaml.v2"
 )
@@ -54,6 +54,6 @@ func HandleWebhookGitlab(w http.ResponseWriter, r *http.Request) (hoster.Hoster,
 func matchesSecurityToken(r *http.Request) bool {
 	// docs: https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#secret-token
 	secretToken := r.Header.Get("X-Gitlab-Token") // if configured
-	value := util.GetEnv(REPOW_GITLAB_SECRET_TOKEN, util.GetEnv(GITLAB_SECRET_TOKEN, ""))
+	value := config.UsedConfig.Gitlab.SecretToken
 	return value == secretToken
 }
