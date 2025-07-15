@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	. "github.com/logrusorgru/aurora"
+	. "github.com/logrusorgru/aurora/v4"
 )
 
 var VerboseEnabled bool
@@ -54,10 +54,10 @@ func Error(message string, a ...interface{}) {
 // Progress logs
 
 func colorProject(name string) string {
-	return BrightWhite(name).BgGray(4).String()
+	return Blue(name).Italic().Bold().String()
 }
 
-//TODO progress state into struct
+// TODO progress state into struct
 func ProgressGeneric(counter *int32, total int, status string, name string, message string, a ...interface{}) {
 	totalLen := len(strconv.Itoa(total))
 	counterVal := atomic.AddInt32(counter, 1)

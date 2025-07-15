@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"repo/internal/config"
 	"repo/internal/gitclient"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -14,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/logrusorgru/aurora"
+	"github.com/logrusorgru/aurora/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +39,7 @@ Mode can be one of:
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		defer say.Timer(time.Now())
 		modesAvailable := []string{"check", "fetch", "pull"}
 
@@ -58,7 +60,7 @@ Mode can be one of:
 
 		tasks := make(chan *StateContext)
 		var wg sync.WaitGroup
-		for i := 0; i < getParallelism(updateParallelism); i++ {
+		for i := 0; i < getParallelism(config.Values.Options.Parallelism); i++ {
 			wg.Add(1)
 			go processRepository(mode, tasks, &wg)
 		}

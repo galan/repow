@@ -7,39 +7,26 @@ import (
 	"os"
 	"regexp"
 	"slices"
-	"strconv"
 	"time"
 
+	"repo/internal/config"
 	"repo/internal/hoster"
 	"repo/internal/model"
 	"repo/internal/notification"
 	"repo/internal/say"
-	"repo/internal/util"
 
 	"github.com/xanzy/go-gitlab"
 	gg "github.com/xanzy/go-gitlab"
 )
 
-const (
-	REPOW_GITLAB_API_TOKEN = "REPOW_GITLAB_API_TOKEN"
-	GITLAB_API_TOKEN       = "GITLAB_API_TOKEN"
-
-	REPOW_GITLAB_DOWNLOAD_RETRIES   = "REPOW_GITLAB_DOWNLOAD_RETRIES"
-	GITLAB_DOWNLOAD_RETRIES         = "GITLAB_DOWNLOAD_RETRIES"
-	GITLAB_DOWNLOAD_RETRIES_DEFAULT = 6 // lower values didn't solve the issue
-
-	REPOW_GITLAB_HOST = "REPOW_GITLAB_HOST"
-)
-
 func MakeHoster() (*Gitlab, error) {
 	result := &Gitlab{}
-	valueApiToken := util.GetEnv(REPOW_GITLAB_API_TOKEN, util.GetEnv(GITLAB_API_TOKEN, ""))
-	if valueApiToken == "" {
-		return result, errors.New("the " + REPOW_GITLAB_API_TOKEN + " or " + GITLAB_API_TOKEN + " environment-variable has to be set")
+	if config.Values.Gitlab.ApiToken == "" {
+		return result, errors.New("the Gitlab API-token has to be set")
 	}
 
 	var errClient error
-	result.client, errClient = gg.NewClient(valueApiToken, gitlab.WithBaseURL("https://"+result.Host()))
+	result.client, errClient = gg.NewClient(config.Values.Gitlab.ApiToken, gitlab.WithBaseURL("https://"+result.Host()))
 	if errClient != nil {
 		return nil, errClient
 	}
@@ -51,7 +38,7 @@ type Gitlab struct {
 }
 
 func (g Gitlab) Host() string {
-	return util.GetEnv(REPOW_GITLAB_HOST, "gitlab.com")
+	return config.Values.Gitlab.Host
 }
 
 func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepository {
@@ -270,16 +257,12 @@ func downloadFile(g Gitlab, remotePath string, branch string) (*gg.File, error) 
 	gfo := &gg.GetFileOptions{
 		Ref: gg.String(branch),
 	}
-	downloadFileRetries, errRetries := strconv.Atoi(util.GetEnv(REPOW_GITLAB_DOWNLOAD_RETRIES, util.GetEnv(GITLAB_DOWNLOAD_RETRIES, strconv.Itoa(GITLAB_DOWNLOAD_RETRIES_DEFAULT))))
-	if errRetries != nil {
-		downloadFileRetries = GITLAB_DOWNLOAD_RETRIES_DEFAULT
-	}
 
 	var file *gg.File
 	var response *gg.Response
 	var err error
 
-	for attempts := 0; attempts < downloadFileRetries; attempts++ {
+	for attempts := 0; attempts < config.Values.Gitlab.DownloadRetryCount; attempts++ {
 		file, response, err = g.client.RepositoryFiles.GetFile(remotePath, model.RepoYamlFilename, gfo)
 		if err == nil {
 			break

@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"path"
+	"repo/internal/config"
 	"repo/internal/gitclient"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
@@ -38,6 +39,7 @@ var cloneCmd = &cobra.Command{
 	Long:  `Clones selected repositories to the passed location. Adds new ones on reoccurring calls.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		defer say.Timer(time.Now())
 		dirReposRoot := getAbsoluteRepoRoot(args[0])
 
@@ -58,16 +60,15 @@ var cloneCmd = &cobra.Command{
 		repos = filterExisting(dirReposRoot, repos)
 		cloneAll(dirReposRoot, repos)
 	},
-	PreRunE: validateFlags,
 }
 
 func filterExisting(dirReposRoot string, repos []h.HosterRepository) (result []h.HosterRepository) {
 	for _, r := range repos {
-
 		var dirRepository string
-		if Style == styleFlat {
+		switch config.Values.Options.Style {
+		case config.StyleFlat:
 			dirRepository = path.Join(dirReposRoot, r.Path)
-		} else if Style == styleRecursive {
+		case config.StyleRecursive:
 			dirRepository = path.Join(dirReposRoot, r.PathWithNamespace)
 		}
 
@@ -85,7 +86,7 @@ func cloneAll(dirReposRoot string, repos []h.HosterRepository) {
 	tasks := make(chan h.HosterRepository)
 	var wg sync.WaitGroup
 	counter := int32(0)
-	for i := 0; i < getParallelism(cloneParallelism); i++ {
+	for i := 0; i < getParallelism(config.Values.Options.Parallelism); i++ {
 		wg.Add(1)
 		go clone(dirReposRoot, &counter, len(repos), tasks, &wg)
 	}
@@ -103,9 +104,10 @@ func clone(dirReposRoot string, counter *int32, total int, tasks chan h.HosterRe
 	for repo := range tasks {
 
 		var dirTarget string
-		if Style == styleFlat {
+		switch config.Values.Options.Style {
+		case config.StyleFlat:
 			dirTarget = repo.Path
-		} else if Style == styleRecursive {
+		case config.StyleRecursive:
 			dirTarget = repo.PathWithNamespace
 		}
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"repo/internal/config"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -13,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	color "github.com/logrusorgru/aurora"
+	color "github.com/logrusorgru/aurora/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -32,6 +33,7 @@ var cleanupCmd = &cobra.Command{
 	Long:  `Archived or deleted repositories at the hoster are moved aside from the checkout-directory. They are collected non-destructive into separate directories.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		dirReposRoot := getAbsoluteRepoRoot(args[0])
 
 		hoster, err := gitlab.MakeHoster()
@@ -57,7 +59,7 @@ func checkRepositories(dirReposRoot string, dirs []model.RepoDir, hoster h.Hoste
 
 	tasks := make(chan model.RepoDir)
 	var wg sync.WaitGroup
-	for i := 0; i < getParallelism(cleanupParallelism); i++ {
+	for i := 0; i < getParallelism(config.Values.Options.Parallelism); i++ {
 		wg.Add(1)
 		go processDir(dirReposRoot, hoster, &counter, len(dirs), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
 	}

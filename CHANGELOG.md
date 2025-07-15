@@ -5,6 +5,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.4.0] - 2025-07-xx
+
+### Added
+* Added option to use configuration-file.
+* Added possibility to override configurations with environment-variables and definied precedence of settings.
+
+### Deprecated
+* BREAKING: Due to enhanced configuration-process and config-file, some environment-variables have been renamed
+
+    `REPOW_STYLE` → `REPOW_OPTIONS_STYLE`
+
+    `REPOW_GITLAB_API_TOKEN` and `GITLAB_API_TOKEN` → `REPOW_GITLAB_APITOKEN`
+
+    `GITLAB_DOWNLOAD_RETRIES` → `REPOW_GITLAB_DOWNLOADRETRYCOUNT`
+
+    `REPOW_OPTIONAL_CONTACTS` → `REPOW_OPTIONS_OPTIONALCONTACTS`
+
+* BREAKING: Changed flags
+
+    for `apply`: `-c` → `-e`
+
+    for `validate`: `-c` → `-e`
+
+### Changed
+* Slightly changed color-schema
+* Added exe-suffix to windows binary
+     
+
 ## [0.3.0] - 2025-05-18
 
 ### Added

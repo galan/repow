@@ -142,7 +142,8 @@
 			"env": {},
 			"args": [
 				"validate",
-				"${env:HOME}/temp/repow/dev"
+				"${env:HOME}/temp/repow/dev",
+				"-e"
 			]
 		},
 		{
@@ -202,11 +203,14 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/app/main.go",
-			"env": {},
+			"env": {
+				"REPOW_OPTIONS_PARALLELISM": "7"
+			},
 			"args": [
 				"update",
 				"check",
-				"${env:HOME}/temp/repow/hb01"
+				"${env:HOME}/temp/repow/hb01",
+				"-v"
 			]
 		},
 		{
@@ -215,7 +219,9 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/app/main.go",
-			"env": {},
+			"env": {
+				"REPOW_OPTIONS_STYLE": "recursive"
+			},
 			"args": [
 				"serve"
 			]
