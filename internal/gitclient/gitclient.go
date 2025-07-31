@@ -81,6 +81,11 @@ func GetBehindCount(repoDir string, branch string) int {
 }
 
 func GetChanges(repoDir string, behind int) string {
+	// TODO find way to link hashes
+	//x := "\\e]8;;http://example.com\\e\\\\This is a link\\e]8;;\\e"
+	//o, _, _ := util.RunCommandDir(&repoDir, "git", "-c", "color.ui=always", "--no-pager", "log", "--format=%C(yellow)%h%Creset"+x+"%C(blue)%ar%Creset%C//(green)%d%Creset %s %C(dim normal)(%an)%Creset", "-n", strconv.Itoa(behind))
+	//return strings.TrimSpace(o)
+
 	o, _, _ := util.RunCommandDir(&repoDir, "git", "-c", "color.ui=always", "--no-pager", "log", "--format=%C(yellow)%h%Creset %C(blue)%ar%Creset%C(green)%d%Creset %s %C(dim normal)(%an)%Creset", "-n", strconv.Itoa(behind))
 	return strings.TrimSpace(o)
 }

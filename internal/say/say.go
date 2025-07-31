@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	. "github.com/logrusorgru/aurora"
+	. "github.com/logrusorgru/aurora/v4"
 )
 
 var VerboseEnabled bool
@@ -53,44 +53,48 @@ func Error(message string, a ...interface{}) {
 
 // Progress logs
 
-func colorProject(name string) string {
-	return BrightWhite(name).BgGray(4).String()
+func colorProject(name string) Value {
+	return Blue(name).Italic().Bold()
 }
 
-//TODO progress state into struct
-func ProgressGeneric(counter *int32, total int, status string, name string, message string, a ...interface{}) {
+// TODO progress state into struct
+func ProgressGeneric(counter *int32, total int, status string, name string, hyperlink string, message string, a ...interface{}) {
 	totalLen := len(strconv.Itoa(total))
 	counterVal := atomic.AddInt32(counter, 1)
-	Plain("(%*d/%d) [%s] %s %s", totalLen, counterVal, total, status, colorProject(name), fmt.Sprintf(message, a...))
+	nameColored := colorProject(name)
+	if len(hyperlink) > 0 {
+		nameColored = nameColored.Hyperlink(hyperlink)
+	}
+	Plain("(%*d/%d) [%s] %s %s", totalLen, counterVal, total, status, nameColored.String(), fmt.Sprintf(message, a...))
 }
 
-func ProgressSuccess(counter *int32, total int, name string, message string, a ...interface{}) {
-	ProgressGeneric(counter, total, Green("✔").Bold().String(), name, message, a...)
+func ProgressSuccess(counter *int32, total int, name string, hyperlink string, message string, a ...interface{}) {
+	ProgressGeneric(counter, total, Green("✔").Bold().String(), name, hyperlink, message, a...)
 }
 
-func ProgressWarn(counter *int32, total int, err error, name string, message string, a ...interface{}) {
+func ProgressWarn(counter *int32, total int, err error, name string, hyperlink string, message string, a ...interface{}) {
 	msg := message
 	if err != nil {
 		msg = msg + ": " + err.Error()
 	}
-	ProgressGeneric(counter, total, Yellow("!").Bold().String(), name, msg, a...)
+	ProgressGeneric(counter, total, Yellow("!").Bold().String(), name, hyperlink, msg, a...)
 }
 
-func ProgressError(counter *int32, total int, err error, name string, message string, a ...interface{}) {
+func ProgressError(counter *int32, total int, err error, name string, hyperlink string, message string, a ...interface{}) {
 	msg := message
 	if err != nil {
 		msg = msg + ": " + err.Error()
 	}
-	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, msg, a...)
+	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, hyperlink, msg, a...)
 }
 
-func ProgressErrorArray(counter *int32, total int, errs []error, name string, message string, a ...interface{}) {
+func ProgressErrorArray(counter *int32, total int, errs []error, name string, hyperlink string, message string, a ...interface{}) {
 	msg := message
 	totalLen := len(strconv.Itoa(total)) * 2
 	for _, e := range errs {
 		msg = msg + fmt.Sprintf("\n%*s        - %s", totalLen, "", e.Error())
 	}
-	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, msg, a...)
+	ProgressGeneric(counter, total, Red("✘").Bold().String(), name, hyperlink, msg, a...)
 }
 
 func Timer(start time.Time) {

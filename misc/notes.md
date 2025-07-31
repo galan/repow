@@ -35,6 +35,7 @@ Old git code
 
 # Similar projects
 * https://github.com/nosarthur/gita
+* https://github.com/ezbz/gitlabber
 
 
 # misc
@@ -58,3 +59,6 @@ X brighten color project names
 - static checks, eg "org_squad: xyz"
 - query command
 X improve "host" for hoster
+- .repow file in root
+- cleanup extension
+- quit config

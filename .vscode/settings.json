@@ -11,12 +11,7 @@
         "activityBar.foreground": "#e7e7e7",
         "activityBar.inactiveForeground": "#e7e7e799",
         "activityBarBadge.background": "#033d17",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "statusBar.background": "#8f3607",
-        "statusBar.foreground": "#e7e7e7",
-        "statusBarItem.hoverBackground": "#c04809",
-        "statusBarItem.remoteBackground": "#8f3607",
-        "statusBarItem.remoteForeground": "#e7e7e7"
+        "activityBarBadge.foreground": "#e7e7e7"
     },
     "peacock.color": "#8f3607",
     "makefile.configureOnOpen": false

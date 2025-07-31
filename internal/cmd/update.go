@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"repo/internal/config"
 	"repo/internal/gitclient"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -14,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/logrusorgru/aurora"
+	"github.com/logrusorgru/aurora/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +39,7 @@ Mode can be one of:
   pull  - Fetches remote changes, merges them (if fast-forward is possible) and outputs the changes`,
 	Args: validateConditions(cobra.ExactArgs(2), validateArgGitDir(1, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		defer say.Timer(time.Now())
 		modesAvailable := []string{"check", "fetch", "pull"}
 
@@ -58,7 +60,7 @@ Mode can be one of:
 
 		tasks := make(chan *StateContext)
 		var wg sync.WaitGroup
-		for i := 0; i < getParallelism(updateParallelism); i++ {
+		for i := 0; i < getParallelism(config.Values.Options.Parallelism); i++ {
 			wg.Add(1)
 			go processRepository(mode, tasks, &wg)
 		}
@@ -68,11 +70,16 @@ Mode can be one of:
 			var rdIntermediate model.RepoDir
 			rdIntermediate = gd
 			dirRelative := getRelativRepoDir(gd.Path, dirReposRoot)
+
+			remotePath := model.DetermineRemotePath(gd.Path, hoster.Host())
+			webUrl := "https://" + hoster.Host() + "/" + remotePath
+
 			tasks <- &StateContext{
 				total:       len(gitDirs),
 				counter:     &counter,
 				repo:        &rdIntermediate,
 				dirRelative: dirRelative,
+				webUrl:      webUrl,
 			}
 		}
 
@@ -99,6 +106,7 @@ type StateContext struct {
 	ref         string
 	behind      int
 	message     string
+	webUrl      string
 }
 
 func processRepository(mode string, tasks chan *StateContext, wg *sync.WaitGroup) {
@@ -191,7 +199,7 @@ func printContext(ctx *StateContext) {
 	if ctx.behind > 0 {
 		outBehind = "↓" + strconv.Itoa(ctx.behind)
 	}
-	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.dirRelative, "%s (%s%s)", outSep, outBranch, outBehind)
+	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.dirRelative, ctx.webUrl, "%s (%s%s)", outSep, outBranch, outBehind)
 
 	msg := strings.TrimSpace(ctx.message)
 	if len(msg) > 0 {

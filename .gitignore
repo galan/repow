@@ -12,3 +12,6 @@
 # vendor/
 
 bin/
+
+cmd/app/__debug*
+

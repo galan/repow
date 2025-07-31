@@ -39,7 +39,7 @@
 			"env": {},
 			"args": [
 				"clone",
-				"${env:HOME}/temp/repow/dev",
+				"${env:HOME}/temp/repow/fav",
 				"-s"
 			]
 		},
@@ -87,6 +87,18 @@
 			"args": [
 				"cleanup",
 				"${env:HOME}/temp/repow/dev"
+			]
+		},
+		{
+			"name": "cleanup (fav)",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/cmd/app/main.go",
+			"env": {},
+			"args": [
+				"cleanup",
+				"${env:HOME}/temp/repow/fav"
 			]
 		},
 		{
@@ -142,7 +154,8 @@
 			"env": {},
 			"args": [
 				"validate",
-				"${env:HOME}/temp/repow/dev"
+				"${env:HOME}/temp/repow/dev",
+				"-e"
 			]
 		},
 		{
@@ -202,11 +215,14 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/app/main.go",
-			"env": {},
+			"env": {
+				"REPOW_OPTIONS_PARALLELISM": "7"
+			},
 			"args": [
 				"update",
 				"check",
-				"${env:HOME}/temp/repow/hb01"
+				"${env:HOME}/temp/repow/hb01",
+				"-v"
 			]
 		},
 		{
@@ -215,7 +231,9 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/app/main.go",
-			"env": {},
+			"env": {
+				"REPOW_OPTIONS_STYLE": "recursive"
+			},
 			"args": [
 				"serve"
 			]

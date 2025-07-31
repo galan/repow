@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"repo/internal/config"
 	"repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -14,7 +15,7 @@ var applyOptionalContacts bool
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
-	applyCmd.Flags().BoolVarP(&applyOptionalContacts, "optionalContacts", "c", false, "Allow empty contacts (existing contacts still will be validated)")
+	applyCmd.Flags().BoolVarP(&applyOptionalContacts, "optionalContacts", "e", false, "Allow empty contacts (existing contacts still will be validated)")
 }
 
 var applyCmd = &cobra.Command{
@@ -23,6 +24,7 @@ var applyCmd = &cobra.Command{
 	Long:  `Applies the repositories repo.yaml manifest file configuration to the hosters repository settings`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, true, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
@@ -36,7 +38,7 @@ func applyProcess(hoster hoster.Hoster, gitDirs []model.RepoDir) {
 	defer say.Timer(time.Now())
 	for _, gd := range gitDirs {
 		// validate
-		errs := hoster.Validate(gd.RepoMeta, applyOptionalContacts)
+		errs := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalContacts)
 		if errs != nil {
 			say.InfoLn("Skipping invalid %s", gd.Name)
 			continue

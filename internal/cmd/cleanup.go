@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"repo/internal/config"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -13,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	color "github.com/logrusorgru/aurora"
+	color "github.com/logrusorgru/aurora/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -32,6 +33,7 @@ var cleanupCmd = &cobra.Command{
 	Long:  `Archived or deleted repositories at the hoster are moved aside from the checkout-directory. They are collected non-destructive into separate directories.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, false, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		dirReposRoot := getAbsoluteRepoRoot(args[0])
 
 		hoster, err := gitlab.MakeHoster()
@@ -57,7 +59,7 @@ func checkRepositories(dirReposRoot string, dirs []model.RepoDir, hoster h.Hoste
 
 	tasks := make(chan model.RepoDir)
 	var wg sync.WaitGroup
-	for i := 0; i < getParallelism(cleanupParallelism); i++ {
+	for i := 0; i < getParallelism(config.Values.Options.Parallelism); i++ {
 		wg.Add(1)
 		go processDir(dirReposRoot, hoster, &counter, len(dirs), &counterOk, &counterSkipped, &counterArchived, &counterRemoved, tasks, &wg)
 	}
@@ -74,11 +76,11 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 	for dirRepository := range tasks {
 
 		dirRepoRelative := getRelativRepoDir(dirRepository.Path, dirReposRoot)
-
 		remotePath := model.DetermineRemotePath(dirRepository.Path, hoster.Host())
+		webUrl := "https://" + hoster.Host() + "/" + remotePath
 
 		if remotePath == "" {
-			say.ProgressWarn(counter, total, nil, dirRepoRelative, "- Unable to determine git remote name (skipping)")
+			say.ProgressWarn(counter, total, nil, dirRepoRelative, webUrl, "- Unable to determine git remote name (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
@@ -86,7 +88,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 		say.Verbose("RemotePath: %s: %s", dirRepoRelative, remotePath)
 		state, err := hoster.ProjectState(remotePath)
 		if err != nil {
-			say.ProgressWarn(counter, total, err, dirRepoRelative, "- Unable to determine git remote state (skipping)")
+			say.ProgressWarn(counter, total, err, dirRepoRelative, webUrl, "- Unable to determine git remote state (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
@@ -108,17 +110,17 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 			code = color.Cyan("R").Bold().String() // 🗑
 			atomic.AddInt32(counterRemoved, 1)
 		default:
-			say.ProgressError(counter, total, err, dirRepoRelative, "- State for repository is unknown (skipping)")
+			say.ProgressError(counter, total, err, dirRepoRelative, webUrl, "- State for repository is unknown (skipping)")
 			code = color.White("?").Bold().String()
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
 
 		if errorMove != nil {
-			say.ProgressError(counter, total, errorMove, dirRepoRelative, "- Unable to move")
+			say.ProgressError(counter, total, errorMove, dirRepoRelative, webUrl, "- Unable to move")
 		} else {
 			if !cleanupQuiet || state != h.Ok {
-				say.ProgressGeneric(counter, total, code, dirRepoRelative, "")
+				say.ProgressGeneric(counter, total, code, dirRepoRelative, webUrl, "")
 			}
 		}
 	}

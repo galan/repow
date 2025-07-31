@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"repo/internal/config"
 	h "repo/internal/hoster"
 	"repo/internal/hoster/gitlab"
 	"repo/internal/model"
@@ -16,7 +17,7 @@ var validateOptionalContacts bool
 func init() {
 	rootCmd.AddCommand(validateCmd)
 	validateCmd.Flags().BoolVarP(&validateQuiet, "quiet", "q", false, "Output only affected repositories")
-	validateCmd.Flags().BoolVarP(&validateOptionalContacts, "optionalContacts", "c", false, "Allow empty contacts (existing contacts still will be validated)")
+	validateCmd.Flags().BoolVarP(&validateOptionalContacts, "optionalContacts", "e", false, "Allow empty contacts (existing contacts still will be validated)")
 }
 
 var validateCmd = &cobra.Command{
@@ -25,6 +26,7 @@ var validateCmd = &cobra.Command{
 	Long:  `Validates the repo.yaml manifest file for the given repository or repositories below the given directory.`,
 	Args:  validateConditions(cobra.ExactArgs(1), validateArgGitDir(0, true, true)),
 	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd.Flags())
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
@@ -41,13 +43,16 @@ func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir, dirReposRoot stri
 	for _, gd := range gitDirs {
 		dirRepoRelative := getRelativRepoDir(gd.Path, dirReposRoot)
 
+		remotePath := model.DetermineRemotePath(gd.Path, hoster.Host())
+		webUrl := "https://" + hoster.Host() + "/" + remotePath
+
 		say.Verbose("Validating %s", dirRepoRelative)
-		errValidate := hoster.Validate(gd.RepoMeta, validateOptionalContacts)
+		errValidate := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalContacts)
 		if errValidate != nil {
-			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, "")
+			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, webUrl, "")
 		} else {
 			if !validateQuiet {
-				say.ProgressSuccess(&counter, len(gitDirs), dirRepoRelative, "")
+				say.ProgressSuccess(&counter, len(gitDirs), dirRepoRelative, webUrl, "")
 			}
 		}
 	}

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"math"
 	"os"
@@ -19,15 +18,8 @@ import (
 )
 
 const (
-	REPOW_STYLE string = "REPOW_STYLE"
-)
-
-const (
 	dirArchived string = "_archived"
 	dirRemoved  string = "_removed"
-
-	styleFlat      string = "flat"
-	styleRecursive string = "recursive"
 )
 
 func handleFatalError(err error) {
@@ -79,19 +71,6 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 		}
 		return nil
 	}
-}
-
-var Style string
-
-func validateFlags(cmd *cobra.Command, args []string) error {
-	stylesAvailable := []string{styleFlat, styleRecursive}
-	styleFlag := cmd.Flag("style").Value.String()
-	styleSelected := util.GetEnv(REPOW_STYLE, styleFlag)
-	if !slices.Contains(stylesAvailable, styleSelected) {
-		return fmt.Errorf("invalid value for style: %q", styleSelected)
-	}
-	Style = styleSelected
-	return nil
 }
 
 // check all directories recursivly for .git directory
