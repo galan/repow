@@ -70,11 +70,16 @@ Mode can be one of:
 			var rdIntermediate model.RepoDir
 			rdIntermediate = gd
 			dirRelative := getRelativRepoDir(gd.Path, dirReposRoot)
+
+			remotePath := model.DetermineRemotePath(gd.Path, hoster.Host())
+			webUrl := "https://" + hoster.Host() + "/" + remotePath
+
 			tasks <- &StateContext{
 				total:       len(gitDirs),
 				counter:     &counter,
 				repo:        &rdIntermediate,
 				dirRelative: dirRelative,
+				webUrl:      webUrl,
 			}
 		}
 
@@ -101,6 +106,7 @@ type StateContext struct {
 	ref         string
 	behind      int
 	message     string
+	webUrl      string
 }
 
 func processRepository(mode string, tasks chan *StateContext, wg *sync.WaitGroup) {
@@ -193,7 +199,7 @@ func printContext(ctx *StateContext) {
 	if ctx.behind > 0 {
 		outBehind = "↓" + strconv.Itoa(ctx.behind)
 	}
-	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.dirRelative, "%s (%s%s)", outSep, outBranch, outBehind)
+	say.ProgressGeneric(ctx.counter, ctx.total, outState, ctx.dirRelative, ctx.webUrl, "%s (%s%s)", outSep, outBranch, outBehind)
 
 	msg := strings.TrimSpace(ctx.message)
 	if len(msg) > 0 {

@@ -29,6 +29,7 @@ type HosterRepository struct {
 	PathWithoutNamespace string
 	Topics               []string
 	SshUrl               string
+	WebUrl               string
 }
 
 type CleanupState int

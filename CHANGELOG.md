@@ -5,14 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.4.0] - 2025-07-xx
+## [0.4.0] - 2025-08-01
 
 ### Added
 * Added option to use configuration-file.
 * Added possibility to override configurations with environment-variables and definied precedence of settings.
+* Added hyperlinks to repositories on output
 
-### Deprecated
-* BREAKING: Due to enhanced configuration-process and config-file, some environment-variables have been renamed
+### Changed
+* BREAKING: Due to enhanced configuration-process and config-file, some environment-variables have been renamed and streamlined:
 
     `REPOW_STYLE` → `REPOW_OPTIONS_STYLE`
 
@@ -22,16 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
     `REPOW_OPTIONAL_CONTACTS` → `REPOW_OPTIONS_OPTIONALCONTACTS`
 
-* BREAKING: Changed flags
+* BREAKING: Changed flags:
 
     for `apply`: `-c` → `-e`
 
     for `validate`: `-c` → `-e`
 
-### Changed
 * Slightly changed color-schema
 * Added exe-suffix to windows binary
      
+## [0.3.1] - 2025-06-06
+
+### Added
+* Windows binary
+
 
 ## [0.3.0] - 2025-05-18
 
@@ -119,7 +124,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/galan/repow/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/galan/repow/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/galan/repow/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/galan/repow/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/galan/repow/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/galan/repow/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/galan/repow/compare/v0.2.1...v0.2.2

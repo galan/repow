@@ -43,13 +43,16 @@ func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir, dirReposRoot stri
 	for _, gd := range gitDirs {
 		dirRepoRelative := getRelativRepoDir(gd.Path, dirReposRoot)
 
+		remotePath := model.DetermineRemotePath(gd.Path, hoster.Host())
+		webUrl := "https://" + hoster.Host() + "/" + remotePath
+
 		say.Verbose("Validating %s", dirRepoRelative)
 		errValidate := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalContacts)
 		if errValidate != nil {
-			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, "")
+			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, webUrl, "")
 		} else {
 			if !validateQuiet {
-				say.ProgressSuccess(&counter, len(gitDirs), dirRepoRelative, "")
+				say.ProgressSuccess(&counter, len(gitDirs), dirRepoRelative, webUrl, "")
 			}
 		}
 	}

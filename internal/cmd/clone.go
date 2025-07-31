@@ -113,9 +113,9 @@ func clone(dirReposRoot string, counter *int32, total int, tasks chan h.HosterRe
 
 		err := gitclient.Clone(dirReposRoot, dirTarget, repo.SshUrl)
 		if err != nil {
-			say.ProgressError(counter, total, err, repo.PathWithNamespace, "- Unable to clone")
+			say.ProgressError(counter, total, err, repo.PathWithNamespace, repo.WebUrl, "- Unable to clone")
 		} else {
-			say.ProgressSuccess(counter, total, dirTarget, "")
+			say.ProgressSuccess(counter, total, dirTarget, repo.WebUrl, "")
 		}
 	}
 }

@@ -76,11 +76,11 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 	for dirRepository := range tasks {
 
 		dirRepoRelative := getRelativRepoDir(dirRepository.Path, dirReposRoot)
-
 		remotePath := model.DetermineRemotePath(dirRepository.Path, hoster.Host())
+		webUrl := "https://" + hoster.Host() + "/" + remotePath
 
 		if remotePath == "" {
-			say.ProgressWarn(counter, total, nil, dirRepoRelative, "- Unable to determine git remote name (skipping)")
+			say.ProgressWarn(counter, total, nil, dirRepoRelative, webUrl, "- Unable to determine git remote name (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
@@ -88,7 +88,7 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 		say.Verbose("RemotePath: %s: %s", dirRepoRelative, remotePath)
 		state, err := hoster.ProjectState(remotePath)
 		if err != nil {
-			say.ProgressWarn(counter, total, err, dirRepoRelative, "- Unable to determine git remote state (skipping)")
+			say.ProgressWarn(counter, total, err, dirRepoRelative, webUrl, "- Unable to determine git remote state (skipping)")
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
@@ -110,17 +110,17 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 			code = color.Cyan("R").Bold().String() // 🗑
 			atomic.AddInt32(counterRemoved, 1)
 		default:
-			say.ProgressError(counter, total, err, dirRepoRelative, "- State for repository is unknown (skipping)")
+			say.ProgressError(counter, total, err, dirRepoRelative, webUrl, "- State for repository is unknown (skipping)")
 			code = color.White("?").Bold().String()
 			atomic.AddInt32(counterSkipped, 1)
 			continue
 		}
 
 		if errorMove != nil {
-			say.ProgressError(counter, total, errorMove, dirRepoRelative, "- Unable to move")
+			say.ProgressError(counter, total, errorMove, dirRepoRelative, webUrl, "- Unable to move")
 		} else {
 			if !cleanupQuiet || state != h.Ok {
-				say.ProgressGeneric(counter, total, code, dirRepoRelative, "")
+				say.ProgressGeneric(counter, total, code, dirRepoRelative, webUrl, "")
 			}
 		}
 	}

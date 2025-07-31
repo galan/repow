@@ -12,7 +12,7 @@ WORKDIR /src/
 ENV GO111MODULE=on
 RUN make build-linux-amd
 
-FROM debian:12.10
+FROM debian:12.11
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 COPY --from=build /src/bin/repow-linux-amd64 /bin/repow

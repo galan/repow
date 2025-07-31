@@ -79,7 +79,8 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 					PathWithNamespace: project.PathWithNamespace,
 					//PathWithoutNamespace: pathWithoutNamespace,
 					Topics: project.TagList,
-					SshUrl: project.SSHURLToRepo})
+					SshUrl: project.SSHURLToRepo,
+					WebUrl: project.WebURL})
 			}
 		}
 		projectOptions.Page++

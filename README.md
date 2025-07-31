@@ -2,116 +2,137 @@
   <img src="media/repow-02-512.png" width="128">
 </p>
 
-**repow** simplifies management of your local git repository zoo.
+**repow** simplifies management of your local git repository-zoo.
 
-repow provids commands for everyday operations on the one hand, and automatically applying configuration via a manifest-file on the other. The commands can be used completely independently of each other.
+Some things you can do with repow:
 
-**The operations/commands can be used totally independent of each other!**
-There is no need to have a `repo.yaml` file to use the `clone`, `update` or `cleanup` commands, and vice versa.
+* ⬇️ Clone all (or a filtered set) of your git-repositories into a directory (flat or recursive)
+* ✨ Update all of your git-repositories recursivly (only check, fetch or pull fast-forward)
+* 🧹 Cleanup all of your removed or archived git-repositories recursivly
+
+Repow is simple, fast and easy to set up. It comes with several commands for everyday operations to ease the burden of keeping the cloned repos up-to-date.
+
+Besides it also offers applying configuration and meta-data via a manifest-file (completly optional and independent).
+
+
 
 # Installation and setup
 
 Either download the [binary](https://github.com/galan/repow/releases) directly, or simply use [mise](https://mise.jdx.dev): `mise use -g ubi:galan/repow`
 
-The following environment-variables can be helpful to define default behaviour:
-* `REPOW_GITLAB_API_TOKEN` - Required (or alternatively `GITLAB_API_TOKEN`)\
-For Gitlab create a [Personal Access Token](https://gitlab.com/-/user_settings/personal_access_tokens) with API scope.
-* `REPOW_GITLAB_HOST`\
-Set if you use a self-host Gitlab
-* `REPOW_STYLE`
-Define your default clone style
+Next up is configuration. You specify most settings via configuration-file or environment-variables. For more details on the configuraiton options, see the configuration section below. To get things started, use the following environment-variables:
+
+* `REPOW_GITLAB_APITOKEN` - Required for Gitlab, create a [Personal Access Token](https://gitlab.com/-/user_settings/personal_access_tokens) with API scope.
+* `REPOW_GITLAB_HOST` - Set this, if you use a self-hosted Gitlab instance.
+* `REPOW_OPTIONS_STYLE` - Define your default clone style (`flat` (default) or `recursive`).
+
+
 
 # Commands
+First - Don't panic! Detailed help for every command can be obtained at every point by omitting the arguments or via `--help`.
 
-First - don't panic! Detailed help for every command can be obtained at every point using the commandline help via `--help`
+Commands that help you on everyday operations keeping pace with the growing amount of repositories:
 
-Commands that target everyday operations:
-* **clone**\
-Clones multiple repos in parallel. Filter by topics (tags), patterns or starred. Either clones the repositories flat, or recursive using the group structure as directories.
-* **update**\
-checks, fetches and pulls all of your local repositories in parallel and prints condensed commit messages.
-* **cleanup**\
-Non-destructive cleanup of remotely deleted or archived repositories.
+### ⬇️ clone
+Clones multiple repos in parallel. Filter by topics (tags), patterns (include and exclude) or starred favorites. Either clones the repositories `flat` (default), or `recursive` using the group structure as directories. You should be aware, that mixing both modes in the same target directory will result in mixed repository layouts. Also you have to keep the repository-names unique when using `flat`.
 
-Beside, repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with topics, description, configuration, etc..
+You can and should repeat this as often as you like, as only repositories will be cloned, that are not locally cloned yet.
 
-Commands utilizing the manifest-file (completely optional):
-* **validate**\
-Validating the manifest-file (existince, patterns, usernames, etc.)
-* **apply**\
-Applying the manifest files values to the hoster repository
-* **serve**\
-Starts the webhook server, that will listen to the changes on the default branch to apply changes automatically on push events. You can configure slack to obtain notifications for invalid manifest files.
+Examples
+```bash
+# Clones everything you have access to into the current directory
+repow clone . 
 
+# Clones everything that matches the include filters group path (multiple possible)
+repow clone . -i "^my-group/sub" -i "^other.*/regex-[0-9]{0-9}" -e "^private/"
 
-# Architecture and process
+# Clones everything that contains the topics aka labels
+repow clone . -t "library" -t "a-team"
 
-Example developer routine:
-
-1. The developer clones all the desired repositories, based on tags, path-patterns (includes/exludes), or starred ones using `repow clone`. Executing this command again will only clone newly added repos.
-2. From time-to-time the developer cleans the directory, containing the git-repositories via `repow cleanup`. Projects that have been deleted at the hoster are moved into a subdirectory `_deleted`, archived ones into `_archived`.
-3. Also in regular intervals the local repositories are fetched or pulled with `repow update fetch` respective `repow update pull`. An overview of the local repositories modifications can be obtained with `repow update check`.
-
-If the manifest-file is used (not necessary for the steps above and completly optional), the configuration can be applied using one of the following methods:
-* For local execution using the `repow apply` command.
-* For automatic execution by running the `repow serve` or the Docker-container, that listens to the hosters git push webhook. On event, the state of the manifest file is applied directly to the project. That way you keep even track of your project configuration.
-
-Before applying, the `repo.yaml` file is validated. Then the following settings from the manifest-file are applied to the project:
-* The project description is updated
-* Topics (aka tags) are added
-* Organization Units, languages and type are also added as topic
-* Hoster-specific configurations are updated
-
-With the help of these additional topics, cloning specific selections becomes much easier and more efficient.
-
-
-# Repository manifest file (`repo.yaml`)
-
-If the usage of the repository-metadata is wanted, there are some conventions and fields that can be used. The manifest filename is `repo.yaml` and lives in the root of the git repository.
-
-Example file:
-```yaml
-name: my-project
-description: Lorem Ipsum
-type: service
-languages: [java, kotlin]
-topics: [foo, bar]
-org:
-  chapter: backend
-  squad: user
-annotations:
-  deprecated: "false"
-  acme.corp/access: "iam"
-contacts:
-  - galan
-gitlab:
-  wiki_access_level: "private"
-  shared_runners_enabled: false
-  forking_access_level: false
-  only_allow_merge_if_pipeline_succeeds: true
-  remove_source_branch_after_merge: true
+# Combination of all above is also possible
+repow clone . -e "^private/" -t "library"
 ```
 
-* `name`: needs to be the same as the projects name
-* `description`: Short precice description of the projects purpose
-* `type`: A freely definable value for a type. Could be any string, recommended are values such as "service", "library", "tooling", ...
-* `languages`: List of strings, containing one-letter words for the languages used by this project
-* `topics`: List of freely definable topics names. Obey the pattern `a-z0-9-`.
-* `org`: Map of freely definable key/value-pairs, that associate the project to your organization landscape.
-* `annotations`: A freely definable key/value-structure for your own metadata (influenced by kubernetes annotations)
-* `contacts`: List of users, that are associated with the project. How this is used depends on your organization-structure. Eg. it can be used to give other developers go-to persons for questions, merge-requests, etc..
-* `gitlab`: Provides several gitlab hoster-specific project settings, that can be modified. The following values are supported at the moment: `wiki_access_level`, `issues_access_level`, `forking_access_level`, `build_timeout`, `only_allow_merge_if_pipeline_succeeds`, `only_allow_merge_if_all_discussions_are_resolved`, `remove_source_branch_after_merge`, `shared_runners_enabled`. If you miss a settings, feel free to open an issue.
 
-The example above will result in the following topics: `language_java`, `language_kotlin`, `foo`, `bar`, `org_chapter_backend`, `org_squad_user`
+### ✨ update
+This checks, fetches and pulls all of your local repositories in parallel and prints condensed commit messages. Hint: Use `-q` to hide untouched repositories in the output.
 
-### Webhook/Docker
-The webhook listens for push events on the default branch, and applies the manifest-file on events.
+Examples
+```bash
+# Lists all repositories, that contain changes, and their current branch
+repow update check . -q
 
-repow starts a webserver listening in port 8080 when called with the command `repow serve`. A ready-to-use docker-container exists here: https://hub.docker.com/repository/docker/galan/repow
+# Fetches changes for all repositories for the current branch, and prints only those with changes
+repow update fetch . -q
 
-### Environment variables
-List of supported environment variables:
-* `REPOW_GITLAB_API_TOKEN`
-* `REPOW_GITLAB_SECRET_TOKEN`
-* `REPOW_SLACK_API_TOKEN`
-* `REPOW_SLACK_CHANNEL_ID`
+# If fast-forward is possible, pulls changes for all repositories for the current branch, and prints only those with changes
+repow update pull . -q
+```
+
+
+### 🧹 cleanup
+Non-destructive cleanup of remotely deleted or archived repositories. Those repositories will be moved into a subdirectory.
+
+Examples
+```bash
+# Checks all repositories if they are removed or archived, and moves them non-destructive aside
+repow cleanup . -q
+```
+
+
+# Configuration
+
+repow uses the following configuration presedence (last will overwrite previous):
+* default values
+* configuration-file
+* environment-variables
+* command-line flags
+
+The exact configuration-file location depends on your OS, but is printed in the general help by just writing `repow`.
+
+You can overwrite the location using the `-c <location>` flag. This is the structure (including the default values) for all possible settings:
+
+```yaml
+options:
+  style: flat
+  parallelism: 32
+  optionalcontacts: false
+server:
+  port: 8080
+gitlab:
+  host: gitlab.com
+  apitoken:
+  downloadretrycount: 6
+  secrettoken:
+slack:
+  token:
+  channelid:
+  prefix: ":repow:"
+```
+
+Environment-variables use the same structure, but start with `REPOW_` followed by the uppercase, snakecased setting. As example, the style can be set via `REPOW_OPTIONS_STYLE`, the gitlab apitoken via `REPOW_GITLAB_APITOKEN`.
+
+
+# Performance
+repow aims to be simple to use and fast using parallelization.
+
+Some relative benchmarks from my machine to get an idea. Those will vary depending on the machine-type, host, network, repository-sizes:
+
+real-world git selfhosted instance:
+* Clone 515 repositories: 2 min 17 sec
+* Clone 317 repositories: 1 min 25 sec 
+* Fetch 631 repositories: 23 sec
+* Pull 631 repositories: 25 sec
+* Cleanup 631 repositories: 6,8 sec
+
+
+# Bonus: manifest-file
+
+Beside, repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with topics, description, configuration, etc.. It is optional to use and completly independent from the other commands described above.
+
+Commands utilizing the manifest-file (optional):
+* **validate** - Validating the manifest-file (existince, patterns, usernames, etc.)
+* **apply** - Applying the manifest files values to the hoster repository
+* **serve** - Starts the webhook server, that will listen to the changes on the default branch to apply changes automatically on push events. You can configure slack to obtain notifications for invalid manifest files.
+
+Read the [manifest-file](https://github.com/galan/repow/blob/master/documentation/repow.yaml-manifest.md) article, to get more insights about the possibilities.

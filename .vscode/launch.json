@@ -39,7 +39,7 @@
 			"env": {},
 			"args": [
 				"clone",
-				"${env:HOME}/temp/repow/dev",
+				"${env:HOME}/temp/repow/fav",
 				"-s"
 			]
 		},
@@ -87,6 +87,18 @@
 			"args": [
 				"cleanup",
 				"${env:HOME}/temp/repow/dev"
+			]
+		},
+		{
+			"name": "cleanup (fav)",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/cmd/app/main.go",
+			"env": {},
+			"args": [
+				"cleanup",
+				"${env:HOME}/temp/repow/fav"
 			]
 		},
 		{
