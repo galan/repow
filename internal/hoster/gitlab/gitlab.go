@@ -150,15 +150,18 @@ func (g Gitlab) ProjectState(projectPath string) (hoster.CleanupState, error) {
 	return hoster.Ok, nil
 }
 
-func (g Gitlab) Validate(repo model.RepoMeta, optionalContacts bool) []error {
+func (g Gitlab) Validate(repo model.RepoMeta, optionalManifest bool, optionalContacts bool) []error {
 	var errs []error
 	// repo.yaml itself
-	if !repo.RepoYamlValid {
-		errs = append(errs, errors.New("Invalid repo.yaml file"))
+	if repo.RepoYaml == nil {
+		if optionalManifest {
+			return errs
+		}
+		errs = append(errs, errors.New("No repo.yaml file exists"))
 		return errs
 	}
-	if repo.RepoYaml == nil {
-		errs = append(errs, errors.New("No repo.yaml file exists"))
+	if !repo.RepoYamlValid {
+		errs = append(errs, errors.New("Invalid repo.yaml file"))
 		return errs
 	}
 

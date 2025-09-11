@@ -10,6 +10,7 @@ type config struct {
 type options struct {
 	Style            string `koanf:"style"`
 	Parallelism      int    `koanf:"parallelism"`
+	OptionalManifest bool   `koanf:"optionalmanifest"`
 	OptionalContacts bool   `koanf:"optionalcontacts"`
 }
 

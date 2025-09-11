@@ -16,7 +16,7 @@ type Hoster interface {
 	Repositories(options RequestOptions) []HosterRepository
 	ProjectState(projectPath string) (CleanupState, error)
 	Host() string
-	Validate(repo model.RepoMeta, optionalContacts bool) []error
+	Validate(repo model.RepoMeta, optionalManifest bool, optionalContacts bool) []error
 	DownloadRepoyaml(remotePath string, ref string) (*model.RepoYaml, bool, error)
 	Apply(repo model.RepoMeta) error
 }

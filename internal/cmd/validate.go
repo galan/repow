@@ -13,11 +13,13 @@ import (
 
 var validateQuiet bool
 var validateOptionalContacts bool
+var validateOptionalManifest bool
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
 	validateCmd.Flags().BoolVarP(&validateQuiet, "quiet", "q", false, "Output only affected repositories")
 	validateCmd.Flags().BoolVarP(&validateOptionalContacts, "optionalContacts", "e", false, "Allow empty contacts (existing contacts still will be validated)")
+	validateCmd.Flags().BoolVarP(&validateOptionalManifest, "optionalManifest", "m", false, "Allow repositories not containing a manifest file")
 }
 
 var validateCmd = &cobra.Command{
@@ -47,7 +49,7 @@ func validateProcess(hoster h.Hoster, gitDirs []model.RepoDir, dirReposRoot stri
 		webUrl := "https://" + hoster.Host() + "/" + remotePath
 
 		say.Verbose("Validating %s", dirRepoRelative)
-		errValidate := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalContacts)
+		errValidate := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalManifest, config.Values.Options.OptionalContacts)
 		if errValidate != nil {
 			say.ProgressErrorArray(&counter, len(gitDirs), errValidate, dirRepoRelative, webUrl, "")
 		} else {

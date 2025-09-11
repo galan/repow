@@ -12,10 +12,12 @@ import (
 )
 
 var applyOptionalContacts bool
+var applyOptionalManifest bool
 
 func init() {
 	rootCmd.AddCommand(applyCmd)
 	applyCmd.Flags().BoolVarP(&applyOptionalContacts, "optionalContacts", "e", false, "Allow empty contacts (existing contacts still will be validated)")
+	applyCmd.Flags().BoolVarP(&applyOptionalManifest, "optionalManifest", "m", false, "Allow repositories not containing a manifest file")
 }
 
 var applyCmd = &cobra.Command{
@@ -38,7 +40,7 @@ func applyProcess(hoster hoster.Hoster, gitDirs []model.RepoDir) {
 	defer say.Timer(time.Now())
 	for _, gd := range gitDirs {
 		// validate
-		errs := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalContacts)
+		errs := hoster.Validate(gd.RepoMeta, config.Values.Options.OptionalManifest, config.Values.Options.OptionalContacts)
 		if errs != nil {
 			say.InfoLn("Skipping invalid %s", gd.Name)
 			continue

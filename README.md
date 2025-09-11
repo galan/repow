@@ -43,11 +43,11 @@ Examples
 # Clones everything you have access to into the current directory
 repow clone . 
 
-# Clones everything that matches the include filters group path (multiple possible)
-repow clone . -i "^my-group/sub" -i "^other.*/regex-[0-9]{0-9}" -e "^private/"
-
 # Clones everything that contains the topics aka labels
 repow clone . -t "library" -t "a-team"
+
+# Clones everything that matches the include filters group path (multiple possible)
+repow clone . -i "^my-group/sub" -i "^other.*/regex-[0-9]{0-9}" -e "^private/"
 
 # Combination of all above is also possible
 repow clone . -e "^private/" -t "library"
@@ -96,6 +96,8 @@ You can overwrite the location using the `-c <location>` flag. This is the struc
 options:
   style: flat
   parallelism: 32
+  quiet: true
+  optionalmanifest: true
   optionalcontacts: false
 server:
   port: 8080
@@ -114,9 +116,9 @@ Environment-variables use the same structure, but start with `REPOW_` followed b
 
 
 # Performance
-repow aims to be simple to use and fast using parallelization.
+repow aims to be simple to use, easy to install, but also fast using parallelization.
 
-Some relative benchmarks from my machine to get an idea. Those will vary depending on the machine-type, host, network, repository-sizes:
+Some relative benchmarks from my machine to get an idea. Those will vary depending on the machine-type, host, network, repository-sizes, etc.:
 
 real-world git selfhosted instance:
 * Clone 515 repositories: 2 min 17 sec

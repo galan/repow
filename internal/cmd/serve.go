@@ -75,6 +75,16 @@ type WebHookRequest struct {
 	RepoYaml model.RepoYaml
 }
 
+func isManifestOptional(r *http.Request) bool {
+	urlValue := r.URL.Query().Get("optionalManifest")
+	if urlValue == "true" {
+		return true
+	} else if urlValue == "false" {
+		return false
+	}
+	return config.Values.Options.OptionalManifest
+}
+
 func isContactsOptional(r *http.Request) bool {
 	urlValue := r.URL.Query().Get("optionalContacts")
 	if urlValue == "true" {
@@ -101,7 +111,7 @@ func processWebhook(w http.ResponseWriter, r *http.Request, hoster h.Hoster, nam
 	repoRemote := model.MakeRepoRemote(remotePath, repoYaml, validYaml)
 
 	// validate
-	errs := hoster.Validate(repoRemote.RepoMeta, isContactsOptional(r))
+	errs := hoster.Validate(repoRemote.RepoMeta, isManifestOptional(r), isContactsOptional(r))
 	if errs != nil {
 		notification.NotifyInvalidRepository(remotePath, fmt.Sprintf("%v", errs))
 		say.Error("Repository manifest for %s is not valid: %s", repoRemote.RemotePath, errs)

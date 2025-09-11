@@ -1,6 +1,7 @@
 # Repository manifest file (`repo.yaml`)
 
-Repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with topics, description, configuration, etc.. It is optional to use and completly independent from the other commands described above.
+Repow encourages the concept of self-contained repositories by defining a `repo.yaml` manifest file, that contains meta-information about the repository content. These information are used to automatically update the repository at the hoster (eg. gitlab) with labels (aka topics), description, configuration, etc.. The generated labels can then be used to filter during `repow clone`.
+It is optional to use and completly independent from the other commands described above.
 
 
 ## Commands
@@ -66,6 +67,7 @@ The list of environment variables that can be utilized:
 * `REPOW_GITLAB_APITOKEN`
 * `REPOW_GITLAB_HOST`
 * `REPOW_GITLAB_SECRETTOKEN`
+* `REPOW_OPTIONS_OPTIONALMANIFEST`
 * `REPOW_OPTIONS_OPTIONALCONTACTS`
 * `REPOW_SERVER_PORT`
 * `REPOW_SLACK_APITOKEN`

@@ -57,8 +57,10 @@ func initFailsafecheck() {
 func initLoadDefaults(k *koanf.Koanf) {
 	k.Load(structs.Provider(config{
 		Options: options{
-			Style:       "flat",
-			Parallelism: 32,
+			Style:            "flat",
+			Parallelism:      32,
+			OptionalManifest: false,
+			OptionalContacts: false,
 		},
 		Server: server{
 			Port: 8080,
@@ -95,6 +97,7 @@ func initLoadFlags(k *koanf.Koanf, flags *pflag.FlagSet) {
 	p := posflag.ProviderWithValue(flags, ".", k, func(key string, value string) (string, any) {
 		mappings := map[string]string{
 			"optionalContacts": "options.optionalcontacts",
+			"optionalManifest": "options.optionalmanifest",
 			"parallelism":      "options.parallelism",
 			"style":            "options.style",
 		}

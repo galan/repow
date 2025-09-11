@@ -61,4 +61,7 @@ X brighten color project names
 X improve "host" for hoster
 - .repow file in root
 - cleanup extension
-- quit config
+- quit config, more quiet options
+- Change to default branch of git repo on repow update pull #4
+x ignore non-existing repo.yaml option
+
