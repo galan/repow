@@ -69,7 +69,7 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 		for _, project := range projectsPage {
 			total++
 
-			if matches(options, project.PathWithNamespace, project.TagList) {
+			if matches(options, project.PathWithNamespace, project.TagList, project.RepositoryAccessLevel) {
 				//_, pathWithoutNamespace, _ := strings.Cut(project.PathWithNamespace, "/")
 				//say.Info("\npath: %s (was: %s)", rootlessPath, project.PathWithNamespace)
 				repos = append(repos, hoster.HosterRepository{
@@ -103,7 +103,11 @@ func matchesPattern(value string, patterns []string, expected bool) bool {
 	return true
 }
 
-func matches(options hoster.RequestOptions, path string, tags []string) bool {
+func matches(options hoster.RequestOptions, path string, tags []string, projectAcl gitlab.AccessControlValue) bool {
+	if projectAcl == "disabled" {
+		say.Verbose("Skipping repository with disabled git repository acl")
+		return false
+	}
 	if !matchesPattern(path, options.IncludePatterns, true) {
 		return false
 	}
