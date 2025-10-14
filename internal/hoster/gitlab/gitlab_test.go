@@ -55,6 +55,11 @@ var matchCases = []matchCase{
 		options:  hoster.RequestOptions{IncludePatterns: []string{"^my-group", "bar$"}, ExcludePatterns: []string{"foo", "bar"}},
 		expected: false,
 	},
+	{
+		path:     "my-group/foo/bar",
+		options:  hoster.RequestOptions{IncludePatterns: []string{"^my-group", "somewhat$"}, ExcludePatterns: []string{"none", "matches"}},
+		expected: true,
+	},
 }
 
 func TestMatches(t *testing.T) {

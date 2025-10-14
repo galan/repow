@@ -89,18 +89,20 @@ func (g Gitlab) Repositories(options hoster.RequestOptions) []hoster.HosterRepos
 	return repos
 }
 
-func matchesPattern(value string, patterns []string, expected bool) bool {
+func matchesPattern(value string, patterns []string, expected bool, anyMatch bool) bool {
+	var result bool = len(patterns) == 0
 	for _, pattern := range patterns {
 		matched, err := regexp.MatchString(pattern, value)
 		if err != nil {
 			say.Error("Pattern matching failed unexpected for '%s' with %s", value, err)
 			os.Exit(22) // fail-fast
 		}
-		if matched != expected {
+		if !anyMatch && matched != expected {
 			return false
 		}
+		result = result || matched == expected
 	}
-	return true
+	return result
 }
 
 func matches(options hoster.RequestOptions, path string, tags []string, projectAcl gitlab.AccessControlValue) bool {
@@ -108,10 +110,10 @@ func matches(options hoster.RequestOptions, path string, tags []string, projectA
 		say.Verbose("Skipping repository with disabled git repository acl")
 		return false
 	}
-	if !matchesPattern(path, options.IncludePatterns, true) {
+	if !matchesPattern(path, options.IncludePatterns, true, true) {
 		return false
 	}
-	if !matchesPattern(path, options.ExcludePatterns, false) {
+	if !matchesPattern(path, options.ExcludePatterns, false, false) {
 		return false
 	}
 
