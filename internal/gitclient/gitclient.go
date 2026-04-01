@@ -2,6 +2,7 @@ package gitclient
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,10 +13,10 @@ import (
 	"strings"
 )
 
-func PrepareSsh(host string) {
+func PrepareSsh(host string, sshUser string, sshPort int) {
 	// not sure how to improve this.
 	// maybe load ssh config if available and determine identity for host?
-	_, e, code := util.RunCommandDir(nil, "ssh", "git@"+host)
+	_, e, code := util.RunCommandDir(nil, "ssh", "-p", strconv.Itoa(sshPort), fmt.Sprintf("%s@%s", sshUser, host))
 	if code != 0 {
 		say.Error("Failed loading ssh key: %s", e)
 		os.Exit(3)

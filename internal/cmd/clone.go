@@ -46,7 +46,7 @@ var cloneCmd = &cobra.Command{
 		hoster, err := gitlab.MakeHoster()
 		handleFatalError(err)
 
-		gitclient.PrepareSsh(hoster.Host()) // TODO parse url?
+		gitclient.PrepareSsh(hoster.Host(), config.Values.Gitlab.SSHUser, config.Values.Gitlab.SSHPort)
 		repos := hoster.Repositories(h.RequestOptions{
 			Topics:          cloneTopics,
 			Starred:         cloneStarred,

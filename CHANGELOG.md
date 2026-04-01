@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unrelease
 
+### Added
+
+* Support custom gitlab username and port for SSH #8
+
 ### Changed
 
 * Switched from `and` to `or` for include pattern in clone command.

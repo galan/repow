@@ -23,6 +23,8 @@ type gitlab struct {
 	ApiToken           string `koanf:"apitoken"`
 	DownloadRetryCount int    `koanf:"downloadretrycount"`
 	SecretToken        string `koanf:"secrettoken"`
+	SSHUser            string `koanf:"sshuser"`
+	SSHPort            int    `koanf:"sshport"`
 }
 type slack struct {
 	Token     string `koanf:"token"`
