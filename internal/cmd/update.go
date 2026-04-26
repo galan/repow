@@ -55,7 +55,7 @@ Mode can be one of:
 		gitDirs := collectGitDirsHandled(dirReposRoot, hoster)
 
 		if mode == "fetch" || mode == "pull" {
-			gitclient.PrepareSsh(hoster.Host())
+			gitclient.PrepareSsh(hoster.Host(), config.Values.Gitlab.SSHUser, config.Values.Gitlab.SSHPort)
 		}
 
 		tasks := make(chan *StateContext)

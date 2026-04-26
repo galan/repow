@@ -68,6 +68,8 @@ func initLoadDefaults(k *koanf.Koanf) {
 		Gitlab: gitlab{
 			DownloadRetryCount: 6, // lower values didn't solve the issue
 			Host:               "gitlab.com",
+			SSHUser:            "git",
+			SSHPort:            22,
 		},
 	}, "koanf"), nil)
 	print(k, "loaded defaults")
