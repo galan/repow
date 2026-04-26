@@ -15,3 +15,4 @@ bin/
 
 cmd/app/__debug*
 
+mise.local.toml

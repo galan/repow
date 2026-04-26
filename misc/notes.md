@@ -36,6 +36,7 @@ Old git code
 # Similar projects
 * https://github.com/nosarthur/gita
 * https://github.com/ezbz/gitlabber
+* https://github.com/asottile/all-repos
 
 
 # misc
@@ -64,4 +65,3 @@ X improve "host" for hoster
 - quit config, more quiet options
 - Change to default branch of git repo on repow update pull #4
 x ignore non-existing repo.yaml option
-

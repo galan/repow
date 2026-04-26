@@ -55,13 +55,3 @@ docker-build:
 	docker build . -t $(DOCKER_IMAGE_NAME):$(VERSION)
 docker-run:
 	docker run -it --rm -p 8080:8080 --name repow $(DOCKER_IMAGE_NAME):$(VERSION)
-
-
-
-
-
-
-# potential make alternative: https://taskfile.dev
-# cons: requires binary to be downloaded/installed
-
-# potental dockerfile alternative: https://buildpacks.io/
