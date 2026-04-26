@@ -18,7 +18,7 @@ Besides it also offers applying configuration and meta-data via a manifest-file 
 
 # Installation and setup
 
-Either download the [binary](https://github.com/galan/repow/releases) directly, or simply use [mise](https://mise.jdx.dev): `mise use -g ubi:galan/repow`
+Either download the [binary](https://github.com/galan/repow/releases) directly, or simply use [mise](https://mise.jdx.dev): `mise use -g github:galan/repow`
 
 Next up is configuration. You specify most settings via configuration-file or environment-variables. For more details on the configuraiton options, see the configuration section below. To get things started, use the following environment-variables:
 
@@ -41,7 +41,7 @@ You can and should repeat this as often as you like, as only repositories will b
 Examples
 ```bash
 # Clones everything you have access to into the current directory
-repow clone . 
+repow clone .
 
 # Clones everything that contains the topics aka labels
 repow clone . -t "library" -t "a-team"
@@ -106,6 +106,8 @@ gitlab:
   apitoken:
   downloadretrycount: 6
   secrettoken:
+  sshport: 22
+  sshuser: git
 slack:
   token:
   channelid:
@@ -122,7 +124,7 @@ Some relative benchmarks from my machine to get an idea. Those will vary dependi
 
 real-world git selfhosted instance:
 * Clone 515 repositories: 2 min 17 sec
-* Clone 317 repositories: 1 min 25 sec 
+* Clone 317 repositories: 1 min 25 sec
 * Fetch 631 repositories: 23 sec
 * Pull 631 repositories: 25 sec
 * Cleanup 631 repositories: 6,8 sec
