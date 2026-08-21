@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"regexp"
 	"repo/internal/say"
 	"repo/internal/util"
@@ -30,7 +30,7 @@ type RepoRemote struct {
 }
 
 func (rd RepoDir) RepoYamlFilename() string {
-	return path.Join(rd.Path, RepoYamlFilename)
+	return filepath.Join(rd.Path, RepoYamlFilename)
 }
 
 func (rd RepoDir) PathDirName() string {

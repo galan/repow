@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"repo/internal/config"
 	"repo/internal/gitclient"
 	h "repo/internal/hoster"
@@ -67,9 +67,9 @@ func filterExisting(dirReposRoot string, repos []h.HosterRepository) (result []h
 		var dirRepository string
 		switch config.Values.Options.Style {
 		case config.StyleFlat:
-			dirRepository = path.Join(dirReposRoot, r.Path)
+			dirRepository = filepath.Join(dirReposRoot, r.Path)
 		case config.StyleRecursive:
-			dirRepository = path.Join(dirReposRoot, r.PathWithNamespace)
+			dirRepository = filepath.Join(dirReposRoot, r.PathWithNamespace)
 		}
 
 		_, err := os.Stat(dirRepository)

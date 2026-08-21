@@ -3,10 +3,9 @@ package gitclient
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"repo/internal/say"
 	"repo/internal/util"
 	"strconv"
@@ -24,7 +23,7 @@ func PrepareSsh(host string, sshUser string, sshPort int) {
 }
 
 func Clone(rootDir string, repoDir string, sshUrl string) error {
-	dirRepository := path.Join(rootDir, repoDir)
+	dirRepository := filepath.Join(rootDir, repoDir)
 	cmdGo := exec.Command("git", "clone", sshUrl, dirRepository)
 	if say.VerboseEnabled {
 		cmdGo.Stdout = os.Stdout
@@ -53,18 +52,18 @@ func GetLocalChanges(repoDir string) string {
 }
 
 func IsEmpty(repoDir string) bool {
-	fis, err := ioutil.ReadDir(path.Join(repoDir, ".git/objects"))
+	gitDir := filepath.Join(repoDir, ".git")
+	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
+		return true
+	}
+
+	refsHeads := filepath.Join(gitDir, "refs", "heads")
+	entries, err := os.ReadDir(refsHeads)
 	if err != nil {
 		return true
 	}
-	for _, fi := range fis {
-		if !fi.IsDir() {
-			return true
-		}
-	}
-	return false
-	//o, _, _ := util.RunCommandDir(&repoDir, "find", ".git/objects", "-type", "f")
-	//return len(o) == 0
+
+	return len(entries) == 0
 }
 
 func GetCurrentBranch(repoDir string) string {

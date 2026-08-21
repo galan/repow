@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"os"
-	"path"
 	"path/filepath"
 	"repo/internal/config"
 	h "repo/internal/hoster"
@@ -129,8 +128,8 @@ func processDir(dirReposRoot string, hoster h.Hoster, counter *int32, total int,
 func move(dirReposRoot string, dirRepository string, dirTarget string) error {
 	dirRepoRelative := getRelativRepoDir(dirRepository, dirReposRoot)
 	dirAbsSource := dirRepository
-	dirAbsTarget := path.Join(dirReposRoot, dirTarget)
-	dirAbsTargetRepository := path.Join(dirReposRoot, dirTarget, dirRepoRelative)
+	dirAbsTarget := filepath.Join(dirReposRoot, dirTarget)
+	dirAbsTargetRepository := filepath.Join(dirReposRoot, dirTarget, dirRepoRelative)
 
 	// check & prepare target
 	// create if not exists

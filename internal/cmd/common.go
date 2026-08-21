@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"math"
 	"os"
-	"path"
 	"path/filepath"
 	h "repo/internal/hoster"
 	"repo/internal/model"
@@ -63,7 +62,7 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 		if !util.ExistsDir(repoPath) {
 			return errors.New(msg + " (directory does not exist)")
 		}
-		condParent := repoParent && util.ExistsDir(path.Join(repoPath, ".git"))
+		condParent := repoParent && util.ExistsDir(filepath.Join(repoPath, ".git"))
 		condRoot := repoRoot
 
 		if !condParent && !condRoot {
@@ -77,7 +76,7 @@ func validateArgGitDir(argIndex int, repoParent bool, repoRoot bool) cobra.Posit
 // collect them and return the array
 func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err error) {
 
-	ignored := []string{path.Join(root, dirArchived), path.Join(root, dirRemoved)}
+	ignored := []string{filepath.Join(root, dirArchived), filepath.Join(root, dirRemoved)}
 
 	walk := func(dir string, d fs.DirEntry, e error) error {
 		if !d.IsDir() {
@@ -88,7 +87,7 @@ func collectGitDirs(root string, hoster h.Hoster) (result []model.RepoDir, err e
 			return fs.SkipDir
 		}
 
-		if util.ExistsDir(path.Join(dir, ".git")) { // check if given path is git-repository
+		if util.ExistsDir(filepath.Join(dir, ".git")) { // check if given path is git-repository
 			repo, err := model.MakeRepoDir(dir, hoster.Host())
 			if err != nil {
 				say.Verbose("Failed determine repository directory: %s", e)
