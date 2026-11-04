@@ -6,10 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.4.4] - 2026-11-04
+
 ### Changed
 
 * Shorter apply output, json dump available on verbose
 * Rounded execution times
+* Updated go and github-action versions
+
+### Fixed
+
+* Added windows binary in release again
+
 
 ### Fixed
 
@@ -160,7 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/galan/repow/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/galan/repow/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/galan/repow/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/galan/repow/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/galan/repow/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/galan/repow/compare/v0.4.0...v0.4.1

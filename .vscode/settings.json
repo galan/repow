@@ -15,8 +15,18 @@
         "statusBar.background": "#8f3607",
         "statusBar.foreground": "#e7e7e7",
         "statusBarItem.hoverBackground": "#c04809",
-        "statusBarItem.remoteBackground": "#8f3607",
-        "statusBarItem.remoteForeground": "#e7e7e7"
+        "statusBarItem.remoteBackground": "#079839",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "activityBar.activeBorder": "#e7e7e7",
+        "activityBarTop.activeBackground": "#c04809",
+        "activityBarTop.activeBorder": "#e7e7e7",
+        "activityBarTop.background": "#c04809",
+        "activityBarTop.foreground": "#e7e7e7",
+        "activityBarTop.inactiveForeground": "#e7e7e799",
+        "commandCenter.foreground": "#e7e7e7",
+        "statusBar.debuggingBackground": "#8f3607",
+        "statusBar.debuggingForeground": "#e7e7e7",
+        "statusBar.inactiveBackground": "#8f3607"
     },
     "peacock.color": "#8f3607",
     "makefile.configureOnOpen": false
