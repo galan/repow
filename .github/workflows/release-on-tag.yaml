@@ -13,12 +13,12 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v7
       with:
-        go-version: 1.24.2
+        go-version: 1.27.3
 
     - name: Set Version Variable for ldflags
       run: echo "VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
@@ -27,10 +27,11 @@ jobs:
       run: make build
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        body: "[Changelog](https://github.com/galan/repow/blob/master/CHANGELOG.md)"
         draft: false
         prerelease: false
         files: |
@@ -38,4 +39,4 @@ jobs:
           bin/repow-linux-arm64
           bin/repow-darwin-amd64
           bin/repow-darwin-arm64
-          bin/repow-windows-amd64
+          bin/repow-windows-amd64.exe
